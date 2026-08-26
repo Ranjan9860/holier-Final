@@ -1,0 +1,460 @@
+/* =========================================================
+   MAIN SECTION
+========================================================= */
+
+.featuredSection {
+  width: 100%;
+
+  background: #ffffff;
+
+  padding: 0 40px;
+}
+
+/* =========================================================
+   TOP TWO SECTIONS
+========================================================= */
+
+.topSections {
+  width: 100%;
+
+  max-width: 1600px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* =========================================================
+   TOP CARD
+========================================================= */
+
+.topCard {
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  min-height: 420px;
+}
+
+/* Vertical dividing line */
+
+.topCard + .topCard {
+  border-left: 1px solid #dddddd;
+}
+
+/* =========================================================
+   TOP CONTENT
+========================================================= */
+
+.topContent {
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: flex-start;
+
+  padding: 50px 35px;
+}
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.category {
+  display: block;
+
+  margin-bottom: 12px;
+
+  color: #6a6a6a;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  letter-spacing: 1.5px;
+}
+
+/* =========================================================
+   TOP TITLE
+========================================================= */
+
+.topContent h2 {
+  margin: 0 0 16px;
+
+  color: #171717;
+
+  font-size: 32px;
+
+  line-height: 1.2;
+
+  font-weight: 500;
+}
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.topContent p {
+  max-width: 320px;
+
+  margin: 0 0 25px;
+
+  color: #6a6a6a;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+}
+
+/* =========================================================
+   IMAGE
+========================================================= */
+
+.topImage {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.topImage img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.topCard:hover .topImage img {
+  transform: scale(1.03);
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.shopButton {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 120px;
+
+  padding: 11px 22px;
+
+  border: var(--primarycolor);
+
+  background: var(--primarycolor);
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 12px;
+
+  font-weight: 500;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.8px;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
+
+  border-radius: 20px;
+}
+
+.shopButton:hover {
+  background: var(--secondarycolor);
+
+  color: #ffffff;
+}
+
+/* =========================================================
+   BOTTOM THREE SECTIONS
+========================================================= */
+
+.bottomSections {
+  width: 100%;
+
+  max-width: 1600px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* =========================================================
+   BOTTOM CARD
+========================================================= */
+
+.bottomCard {
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  min-height: 360px;
+
+  border-right: 1px solid #dddddd;
+}
+
+.bottomCard:last-child {
+  border-right: none;
+}
+
+/* =========================================================
+   BOTTOM CONTENT
+========================================================= */
+
+.bottomContent {
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: flex-start;
+
+  padding: 30px;
+}
+
+/* =========================================================
+   BOTTOM TITLE
+========================================================= */
+
+.bottomContent h3 {
+  margin: 0 0 12px;
+
+  color: #171717;
+
+  font-size: 22px;
+
+  line-height: 1.25;
+
+  font-weight: 500;
+}
+
+/* =========================================================
+   BOTTOM DESCRIPTION
+========================================================= */
+
+.bottomContent p {
+  max-width: 220px;
+
+  margin: 0 0 22px;
+
+  color: #6a6a6a;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+/* =========================================================
+   BOTTOM IMAGE
+========================================================= */
+
+.bottomImage {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.bottomImage img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.bottomCard:hover .bottomImage img {
+  transform: scale(1.03);
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 992px) {
+  .featuredSection {
+    padding: 0 25px;
+  }
+
+  /* Top */
+
+  .topCard {
+    min-height: 360px;
+  }
+
+  .topContent {
+    padding: 30px 25px;
+  }
+
+  .topContent h2 {
+    font-size: 26px;
+  }
+
+  .topImage {
+    min-height: 360px;
+  }
+
+  /* Bottom */
+
+  .bottomImage {
+    height: 280px;
+  }
+
+  .bottomContent {
+    min-height: 230px;
+
+    padding: 25px;
+  }
+
+  .bottomContent h3 {
+    font-size: 21px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+  .featuredSection {
+    padding: 0 20px;
+  }
+
+  /* Top sections become stacked */
+
+  .topSections {
+    grid-template-columns: 1fr;
+  }
+
+  .topCard {
+    grid-template-columns: 1fr 1fr;
+
+    min-height: 320px;
+  }
+
+  .topCard + .topCard {
+    border-left: none;
+
+    border-top: 1px solid #dddddd;
+  }
+
+  .topContent {
+    padding: 25px 20px;
+  }
+
+  .topContent h2 {
+    font-size: 23px;
+  }
+
+  .topContent p {
+    font-size: 13px;
+  }
+
+  .topImage {
+    min-height: 320px;
+  }
+
+  /* Bottom sections */
+
+  .bottomSections {
+    grid-template-columns: 1fr;
+  }
+
+  .bottomCard {
+    border-right: none;
+
+    border-bottom: 1px solid #dddddd;
+  }
+
+  .bottomCard:last-child {
+    border-bottom: none;
+  }
+
+  .bottomImage {
+    height: 350px;
+  }
+
+  .bottomContent {
+    min-height: auto;
+
+    padding: 30px 20px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+  .featuredSection {
+    padding: 0 15px;
+  }
+
+  /* Top */
+
+  .topCard {
+    grid-template-columns: 1fr;
+
+    display: flex;
+
+    flex-direction: column-reverse;
+  }
+
+  .topImage {
+    min-height: 300px;
+
+    height: 300px;
+  }
+
+  .topContent {
+    min-height: 270px;
+
+    padding: 30px 20px;
+  }
+
+  .topContent h2 {
+    font-size: 25px;
+  }
+
+  /* Bottom */
+
+  .bottomImage {
+    height: 300px;
+  }
+
+  .bottomContent {
+    padding: 25px 20px;
+  }
+
+  .bottomContent h3 {
+    font-size: 22px;
+  }
+}
+
+.sectionDivider {
+  width: 100%;
+  max-width: 1600px;
+
+  margin: 0 auto;
+
+  border: 0;
+  border-top: 1px solid #dddddd;
+}

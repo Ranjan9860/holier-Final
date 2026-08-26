@@ -1,0 +1,50 @@
+.practice {
+  width: 600px;
+  max-width: 90%;
+  margin: 80px auto;
+}
+
+.practice h2 {
+  margin-bottom: 20px;
+}
+
+.mainImage {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.thumbnails {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.thumbnail {
+  position: relative;
+  width: 90px;
+  height: 110px;
+  padding: 0;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.thumbnail:hover {
+  border-color: black;
+}
+
+.active {
+  border: 3px solid black;
+}
+
+.current {
+  margin-top: 20px;
+  font-size: 18px;
+}

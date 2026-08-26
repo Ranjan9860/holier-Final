@@ -1,0 +1,564 @@
+.shopSection {
+  width: 100%;
+
+  padding: 20px 40px;
+
+  background: #fff;
+}
+
+.shopContainer {
+  max-width: 1600px;
+
+  margin: 0 auto;
+}
+
+/* =========================
+   SHOP CONTENT
+========================= */
+
+.shopContent {
+  display: grid;
+
+  grid-template-columns: 340px 1fr;
+
+  gap: 50px;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar {
+  padding-right: 30px;
+  padding-top: 20px;
+}
+
+.sidebar h3 {
+  margin-bottom: 35px;
+
+  font-size: 16px;
+
+  letter-spacing: 1px;
+
+  color: var(--primarycolor);
+}
+
+/* =========================
+   SIDEBAR NAVIGATION
+========================= */
+
+.sidebarNavigation {
+  display: flex;
+
+  flex-direction: column;
+
+  margin-bottom: 35px;
+}
+
+.navigationItem,
+.activeNavigation {
+  position: relative;
+
+  display: block;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid #e5e5e5;
+
+  color: var(--secondarycolor);
+
+  font-size: 14px;
+
+  text-decoration: none;
+
+  transition: all 0.2s ease;
+}
+
+.navigationItem:hover {
+  color: var(--primarycolor);
+}
+
+.activeNavigation {
+  color: var(--primarycolor);
+
+  font-weight: 600;
+
+  padding-left: 10px;
+}
+
+.activeNavigation::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  top: 50%;
+
+  width: 3px;
+
+  height: 18px;
+
+  background: var(--primarycolor);
+
+  transform: translateY(-50%);
+}
+
+/* =========================
+   FILTER GROUP
+========================= */
+
+.filterGroup {
+  margin-bottom: 30px;
+}
+
+.filterGroup h4 {
+  margin-bottom: 18px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: var(--primarycolor);
+}
+
+.filterGroup label {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 12px;
+
+  font-size: 14px;
+
+  color: var(--secondarycolor);
+
+  cursor: pointer;
+}
+
+.filterGroup input {
+  width: 15px;
+
+  height: 15px;
+}
+
+/* =========================
+   COLORS
+========================= */
+
+.colors {
+  display: flex;
+
+  gap: 10px;
+}
+
+.colors span {
+  width: 22px;
+
+  height: 22px;
+
+  border-radius: 50%;
+
+  border: 1px solid #ddd;
+
+  cursor: pointer;
+}
+
+.colorBlack {
+  background: #000;
+}
+
+.colorWhite {
+  background: #fff;
+}
+
+.colorBlue {
+  background: #5daee8;
+}
+
+.colorPink {
+  background: #f4aaaa;
+}
+
+/* =========================
+   PRODUCTS AREA
+========================= */
+
+.productsArea {
+  min-width: 0;
+}
+
+/* =========================
+   PRODUCTS TOP / TOOLBAR
+========================= */
+
+.productsTop {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+
+  gap: 20px;
+}
+
+/* =========================
+   BREADCRUMB
+========================= */
+
+.breadcrumb {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: var(--secondarycolor);
+
+  font-size: 14px;
+
+  white-space: nowrap;
+}
+
+.breadcrumbSeparator {
+  color: #aaa;
+}
+
+.activePage {
+  color: var(--primarycolor);
+}
+
+/* =========================
+   PRODUCTS CONTROLS
+========================= */
+
+.productsControls {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+.productsControls p {
+  margin: 0;
+
+  color: var(--secondarycolor);
+
+  font-size: 14px;
+}
+
+.productsTop select {
+  padding: 10px 15px;
+
+  border: 1px solid var(--bordercolor);
+
+  background: #fff;
+
+  outline: none;
+
+  cursor: pointer;
+
+  color: var(--secondarycolor);
+}
+
+/* =========================
+   VIEW BUTTONS
+========================= */
+
+.viewButtons {
+  display: flex;
+
+  align-items: center;
+
+  border: 1px solid var(--bordercolor);
+}
+
+.viewButtons button {
+  width: 40px;
+
+  height: 40px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: none;
+
+  background: #fff;
+
+  cursor: pointer;
+
+  color: var(--secondarycolor);
+
+  transition: 0.2s ease;
+}
+
+.viewButtons button + button {
+  border-left: 1px solid var(--bordercolor);
+}
+
+.viewButtons button:hover {
+  color: var(--secondarycolor);
+}
+
+.viewButtons .activeView {
+  background: var(--primarycolor);
+
+  color: #fff;
+}
+
+/* =========================
+   SECTION DIVIDER
+========================= */
+
+.sectionDivider {
+  margin: 0;
+
+  border: none;
+
+  border-top: 1px solid var(--bordercolor);
+}
+
+/* =========================
+   PRODUCT GRID
+========================= */
+
+.productGrid {
+  display: grid;
+
+  grid-template-columns: repeat(5, 1fr);
+
+  gap: 25px;
+
+  margin-top: 30px;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+  .shopSection {
+    padding: 60px 25px;
+  }
+
+  .shopContent {
+    grid-template-columns: 200px 1fr;
+
+    gap: 30px;
+  }
+
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .productsTop {
+    gap: 15px;
+  }
+
+  .breadcrumb {
+    font-size: 12px;
+  }
+
+  .productsControls {
+    gap: 10px;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+  .shopSection {
+    padding: 50px 20px;
+  }
+
+  .shopContent {
+    display: block;
+  }
+
+  /* =========================
+     MOBILE SIDEBAR
+  ========================= */
+
+  .sidebar {
+    border-right: none;
+
+    border-bottom: 1px solid #ddd;
+
+    padding-right: 0;
+
+    padding-bottom: 25px;
+
+    margin-bottom: 30px;
+  }
+
+  .sidebarNavigation {
+    margin-bottom: 25px;
+  }
+
+  .filterGroup {
+    margin-bottom: 20px;
+
+    padding-bottom: 20px;
+  }
+
+  /* =========================
+     MOBILE TOOLBAR
+  ========================= */
+
+  .productsTop {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+  }
+
+  .breadcrumb {
+    font-size: 11px;
+  }
+
+  .productsControls {
+    width: 100%;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+  }
+
+  .productsControls p {
+    margin-right: auto;
+
+    font-size: 12px;
+  }
+
+  .productsTop select {
+    padding: 8px 10px;
+
+    font-size: 11px;
+  }
+
+  /* =========================
+     MOBILE PRODUCT GRID
+  ========================= */
+
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 15px;
+  }
+}
+
+/* =========================
+   LIST VIEW
+========================= */
+
+.listView {
+  grid-template-columns: 1fr;
+
+  gap: 25px;
+}
+
+.similarProducts {
+  margin-top: 35px;
+}
+
+.similarProducts h4 {
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primarycolor);
+}
+
+.similarProduct {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.similarProductImage {
+  width: 55px;
+  height: 65px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.similarProductImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.similarProductInfo {
+  min-width: 0;
+}
+
+.similarProductInfo h5 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--secondarycolor);
+}
+
+.similarProductInfo p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--secondarycolor);
+}
+
+/* =========================
+   FILTER SELECT
+========================= */
+
+.filterSelect {
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--bordercolor);
+
+  background: #fff;
+
+  color: var(--secondarycolor);
+
+  font-size: 13px;
+
+  outline: none;
+
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  border-color: var(--primarycolor);
+}
+
+.resetFilters {
+  width: 100%;
+  padding: 11px 20px;
+  margin-top: 5px;
+  border: 1px solid var(--bordercolor);
+  background: #fff;
+  color: var(--secondarycolor);
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.resetFilters:hover {
+  background: var(--primarycolor);
+  color: #fff;
+}

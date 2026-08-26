@@ -1,0 +1,167 @@
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+.overlay {
+  position: fixed;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  background: rgba(0, 0, 0, 0.75);
+
+  z-index: 9999;
+
+  animation: fadeIn 0.25s ease;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal {
+  width: 100%;
+  height: 100%;
+
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================================
+   IMAGE CONTAINER
+========================================================= */
+
+.imageContainer {
+  width: min(900px, 90vw);
+
+  height: min(800px, 90vh);
+
+  position: relative;
+}
+
+.image {
+  object-fit: contain;
+}
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.closeButton {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  color: #171717;
+
+  cursor: pointer;
+
+  z-index: 2;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.closeButton:hover {
+  background: var(--primarycolor);
+
+  color: #ffffff;
+
+  transform: rotate(90deg);
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 768px) {
+  .overlay {
+    padding: 20px;
+  }
+
+  .imageContainer {
+    width: 95vw;
+
+    height: 80vh;
+  }
+
+  .closeButton {
+    width: 42px;
+    height: 42px;
+  }
+
+  .closeButton svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+  .overlay {
+    padding: 15px;
+  }
+
+  .imageContainer {
+    width: 95vw;
+
+    height: 75vh;
+  }
+
+  .closeButton {
+    width: 38px;
+    height: 38px;
+  }
+
+  .closeButton svg {
+    width: 21px;
+    height: 21px;
+  }
+}

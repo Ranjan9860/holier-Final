@@ -1,0 +1,342 @@
+/* =========================================================
+   MAIN SECTION
+========================================================= */
+
+.showcaseSection {
+  width: 100%;
+
+  padding: 60px 40px;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.showcaseContainer {
+  width: 100%;
+
+  max-width: 1800px;
+
+  margin: 0 auto;
+
+  display: grid;
+
+  grid-template-columns: 32% 68%;
+
+  gap: 24px;
+}
+
+/* =========================================================
+   LEFT FEATURED PRODUCT
+========================================================= */
+
+.featuredProduct {
+  width: 100%;
+
+  min-width: 0;
+
+  border: 1px solid #e5e5e5;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  padding: 20px;
+
+  align-self: start;
+}
+
+/* =========================================================
+   FEATURED IMAGE
+========================================================= */
+
+.featuredImage {
+  width: 100%;
+
+  height: 500px;
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.featuredImage img {
+  object-fit: contain;
+}
+
+/* =========================================================
+   THUMBNAILS
+========================================================= */
+
+.thumbnails {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-top: 20px;
+
+  padding: 0 5px;
+  justify-content: center;
+}
+
+.thumbnail {
+  width: 68px;
+
+  height: 68px;
+
+  position: relative;
+
+  padding: 0;
+
+  border: 2px solid #dddddd;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  overflow: hidden;
+
+  cursor: pointer;
+
+  transition: border-color 0.25s ease;
+}
+
+.thumbnail img {
+  object-fit: contain;
+}
+
+.thumbnail:hover {
+  border-color: #aaaaaa;
+}
+
+.activeThumbnail {
+  border-color: var(--primarycolor);
+
+  box-shadow: 0 0 0 1px var(--primarycolor);
+}
+
+/* =========================================================
+   FEATURED INFORMATION
+========================================================= */
+
+.featuredInfo {
+  padding: 20px 5px 5px;
+}
+
+.featuredInfo h2 {
+  margin: 0 0 18px;
+
+  color: #6a6a6a;
+
+  font-size: 30px;
+
+  line-height: 1.2;
+
+  font-weight: 600;
+  text-align: center;
+}
+
+.featuredInfo p {
+  margin: 0;
+
+  color: #6a6a6a;
+
+  font-size: 14px;
+  text-align: center;
+}
+
+/* =========================================================
+   RIGHT PRODUCTS AREA
+========================================================= */
+
+.productsArea {
+  width: 100%;
+
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.productsHeading {
+  width: 100%;
+
+  margin-bottom: 30px;
+}
+
+.productsHeading h2 {
+  margin: 0;
+
+  color: var(--primarycolor);
+
+  font-size: 26px;
+
+  font-weight: 600;
+}
+
+.headingLine {
+  width: 100%;
+
+  height: 2px;
+
+  margin-top: 12px;
+
+  background: linear-gradient(
+    to right,
+    var(--primarycolor) 0,
+    var(--primarycolor) 120px,
+    #cccccc 120px,
+    #cccccc 100%
+  );
+}
+
+/* =========================================================
+   PRODUCT GRID
+========================================================= */
+
+.productGrid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+
+  column-gap: 28px;
+
+  row-gap: 35px;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1200px) {
+  .showcaseSection {
+    padding: 50px 30px;
+  }
+
+  .showcaseContainer {
+    grid-template-columns: 34% 66%;
+  }
+
+  .featuredImage {
+    height: 400px;
+  }
+
+  .productGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 20px;
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 992px) {
+  .showcaseContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .featuredProduct {
+    max-width: 600px;
+
+    margin: 0 auto;
+
+    width: 100%;
+  }
+
+  .featuredImage {
+    height: 500px;
+  }
+
+  .productGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 18px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+  .showcaseSection {
+    padding: 40px 20px;
+  }
+
+  .featuredImage {
+    height: 400px;
+  }
+
+  .featuredInfo h2 {
+    font-size: 25px;
+  }
+
+  .productsHeading {
+    margin-top: 20px;
+
+    margin-bottom: 25px;
+  }
+
+  .productGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 25px 15px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+  .showcaseSection {
+    padding: 30px 15px;
+  }
+
+  .featuredProduct {
+    padding: 12px;
+
+    border-radius: 12px;
+  }
+
+  .featuredImage {
+    height: 330px;
+  }
+
+  .thumbnail {
+    width: 58px;
+
+    height: 58px;
+  }
+
+  .featuredInfo {
+    padding-top: 15px;
+  }
+
+  .featuredInfo h2 {
+    font-size: 22px;
+
+    margin-bottom: 12px;
+  }
+
+  .featuredInfo p {
+    font-size: 12px;
+  }
+
+  .productsHeading h2 {
+    font-size: 22px;
+  }
+
+  .productGrid {
+    gap: 20px 10px;
+  }
+}

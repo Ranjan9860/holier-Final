@@ -1,0 +1,957 @@
+/* =========================================================
+   PRODUCT CARD
+========================================================= */
+
+.productCard {
+  width: 100%;
+
+  min-width: 0;
+
+  position: relative;
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   IMAGE
+========================================================= */
+
+.imageWrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.productImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.productCard:hover .productImage {
+  transform: scale(1.03);
+}
+
+/* =========================================================
+   PRODUCT ACTIONS
+========================================================= */
+
+.productActions {
+  position: absolute;
+
+  top: 10px;
+  right: 10px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  z-index: 3;
+}
+
+/* =========================================================
+   ACTION BUTTON
+========================================================= */
+
+.actionButton {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  color: var(--primarycolor);
+
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  cursor: pointer;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.actionButton:hover {
+  background: var(--primarycolor);
+
+  color: #ffffff;
+
+  transform: scale(1.05);
+}
+
+/* =========================================================
+   PRODUCT INFORMATION
+========================================================= */
+
+.productInfo {
+  padding: 16px 4px 20px;
+  text-align: center;
+}
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.productTitle {
+  margin: 0 0 10px;
+
+  color: #6a6a6a;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   COLORS
+========================================================= */
+
+.colors {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 10px;
+  justify-content: center;
+}
+
+.color {
+  width: 11px;
+  height: 11px;
+
+  display: block;
+
+  border-radius: 50%;
+
+  border: 1px solid #dddddd;
+}
+
+/* =========================================================
+   SIZES
+========================================================= */
+
+.sizes {
+  margin: 0 0 10px;
+
+  color: #6a6a6a;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   PRICE AREA
+========================================================= */
+
+.priceArea {
+  position: relative;
+
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================================
+   PRICE
+========================================================= */
+
+.priceWrapper {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  transition: opacity 0.25s ease;
+}
+
+.price {
+  color: var(--primarycolor);
+
+  font-size: 17px;
+
+  font-weight: 600;
+}
+
+.oldPrice {
+  color: #aaaaaa;
+
+  font-size: 14px;
+
+  text-decoration: line-through;
+}
+
+/* =========================================================
+   ADD TO CART
+========================================================= */
+
+.addToCart {
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  height: 42px;
+
+  min-width: 150px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 0 18px;
+
+  color: var(--secondarycolor);
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.7px;
+
+  cursor: pointer;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transform: translateY(5px);
+
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease,
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.productCard:hover .priceWrapper {
+  opacity: 0;
+}
+
+.productCard:hover .addToCart {
+  opacity: 1;
+
+  visibility: visible;
+
+  transform: translateY(0);
+}
+
+.addToCart:hover {
+  color: var(--primarycolor);
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 992px) {
+  .imageWrapper {
+    height: 230px;
+  }
+
+  .productTitle {
+    font-size: 13px;
+  }
+
+  .price {
+    font-size: 15px;
+  }
+
+  .priceWrapper {
+    gap: 18px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+  .imageWrapper {
+    height: 240px;
+  }
+
+  .productActions {
+    top: 8px;
+    right: 8px;
+
+    gap: 6px;
+  }
+
+  .actionButton {
+    width: 34px;
+    height: 34px;
+  }
+
+  .productInfo {
+    padding-top: 12px;
+  }
+
+  .productTitle {
+    font-size: 12px;
+  }
+
+  .sizes {
+    font-size: 11px;
+  }
+
+  .price {
+    font-size: 14px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+  .imageWrapper {
+    height: 200px;
+  }
+
+  .actionButton {
+    width: 31px;
+    height: 31px;
+  }
+
+  .productTitle {
+    font-size: 11px;
+  }
+
+  .sizes {
+    font-size: 10px;
+
+    white-space: nowrap;
+  }
+
+  .price {
+    font-size: 13px;
+  }
+
+  .oldPrice {
+    font-size: 11px;
+  }
+
+  .addToCart {
+    height: 38px;
+
+    min-width: 125px;
+
+    font-size: 9px;
+  }
+}
+
+/* =========================================================
+   LIST VIEW
+========================================================= */
+
+.listCard {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 220px;
+
+  width: 100%;
+  min-height: 360px;
+
+  background: #fff;
+}
+
+/* =========================================================
+   LEFT - IMAGE
+========================================================= */
+
+.listImageWrapper {
+  position: relative;
+
+  width: 100%;
+  min-height: 360px;
+
+  overflow: hidden;
+}
+
+.listProductImage {
+  object-fit: cover;
+}
+
+/* =========================================================
+   CENTER - INFORMATION
+========================================================= */
+
+.listInfo {
+  padding: 35px 40px;
+}
+
+/* Category */
+
+.listCategory {
+  margin: 0 0 8px;
+
+  color: var(--secondarycolor);
+
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Title */
+
+.listTitle {
+  margin: 0 0 22px;
+  color: var(--primarycolor);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* =========================================================
+   COLOR
+========================================================= */
+
+.listColorRow {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+}
+
+.listLabel {
+  color: #555;
+
+  font-size: 13px;
+}
+
+.listColors {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.listColor {
+  width: 17px;
+  height: 17px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 50%;
+}
+
+/* =========================================================
+   SIZE
+========================================================= */
+
+.listSizeRow {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 22px;
+}
+
+.listSizes {
+  display: flex;
+
+  gap: 6px;
+}
+
+.listSize {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 30px;
+  height: 30px;
+
+  padding: 0 7px;
+
+  border: 1px solid var(--bordercolor);
+
+  color: #555;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.listDescription {
+  margin-bottom: 18px;
+}
+
+.listDescription .listLabel {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-weight: 600;
+}
+
+.listDescription p {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: #666;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* =========================================================
+   KEY FEATURES
+========================================================= */
+
+.listFeatures .listLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.listFeatures ul {
+  margin: 0;
+  padding-left: 20px;
+
+  list-style-type: disc;
+
+  color: #666;
+  font-size: 12px;
+}
+
+.listFeatures li {
+  margin-bottom: 5px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   RIGHT - ACTIONS
+========================================================= */
+
+.listActions {
+  display: flex;
+  flex-direction: column;
+
+  padding: 30px;
+}
+
+/* =========================================================
+   ZOOM + WISHLIST
+========================================================= */
+
+.listActionButtons {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+  gap: 8px;
+}
+
+.listActionButtons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+
+  border: 1px solid var(--bordercolor);
+
+  background: #fff;
+
+  color: var(--secondarycolor);
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+  border-radius: 20px;
+}
+
+.listActionButtons button:hover {
+  background: var(--primarycolor);
+  color: #fff;
+
+  border-color: var(--primarycolor);
+}
+
+/* =========================================================
+   PRICE
+========================================================= */
+
+.listPriceArea {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 15px;
+  justify-content: end;
+}
+
+.listPrice {
+  font-size: 23px;
+  font-weight: 500;
+  color: var(--primarycolor);
+}
+
+.listOldPrice {
+  margin-top: 5px;
+
+  color: var(--secondarycolor);
+
+  font-size: 14px;
+
+  text-decoration: line-through;
+}
+
+/* =========================================================
+   ADD TO CART
+========================================================= */
+
+.listAddToCart {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+
+  gap: 8px;
+
+  width: 100%;
+
+  border: none;
+
+  color: var(--secondarycolor);
+
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.listAddToCart:hover {
+  color: var(--primarycolor);
+}
+
+/* =========================================================
+   TABLET LIST VIEW
+========================================================= */
+
+@media (max-width: 1200px) {
+  .listCard {
+    grid-template-columns: 220px minmax(0, 1fr) 180px;
+    min-height: 330px;
+  }
+
+  .listImageWrapper {
+    min-height: 330px;
+  }
+
+  .listInfo {
+    padding: 28px 25px;
+  }
+
+  .listTitle {
+    font-size: 21px;
+  }
+
+  .listActions {
+    padding: 25px 20px;
+  }
+
+  .listPrice {
+    font-size: 20px;
+  }
+}
+/* =========================================================
+   SMALL TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .listCard {
+    grid-template-columns: 220px minmax(0, 1fr);
+    min-height: auto;
+  }
+
+  .listImageWrapper {
+    min-height: 320px;
+  }
+
+  .listInfo {
+    padding: 25px;
+    border-right: none;
+  }
+
+  /* RIGHT ACTION AREA */
+
+  .listActions {
+    grid-column: 1 / -1;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    gap: 25px;
+
+    padding: 18px 25px;
+
+    border-top: 1px solid #eee;
+  }
+
+  .listActionButtons {
+    order: 1;
+    justify-content: flex-start;
+  }
+
+  .listPriceArea {
+    order: 2;
+
+    margin: 0 0 0 auto;
+  }
+
+  .listAddToCart {
+    order: 3;
+
+    width: auto;
+    min-width: 150px;
+  }
+}
+/* =========================================================
+   MOBILE LIST VIEW
+========================================================= */
+
+@media (max-width: 700px) {
+  .listCard {
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    width: 100%;
+
+    min-height: 0;
+  }
+
+  /* =========================================
+     IMAGE
+  ========================================= */
+
+  .listImageWrapper {
+    width: 100%;
+
+    height: 360px;
+    min-height: 0;
+  }
+
+  /* =========================================
+     INFORMATION
+  ========================================= */
+
+  .listInfo {
+    padding: 25px 20px;
+
+    border-left: none;
+    border-right: none;
+  }
+
+  .listCategory {
+    font-size: 11px;
+
+    margin-bottom: 7px;
+  }
+
+  .listTitle {
+    font-size: 20px;
+
+    margin-bottom: 18px;
+  }
+
+  /* =========================================
+     COLOR
+  ========================================= */
+
+  .listColorRow {
+    gap: 10px;
+
+    margin-bottom: 14px;
+  }
+
+  .listLabel {
+    font-size: 12px;
+  }
+
+  .listColor {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* =========================================
+     SIZE
+  ========================================= */
+
+  .listSizeRow {
+    display: block;
+
+    margin-bottom: 18px;
+  }
+
+  .listSizeRow .listLabel {
+    display: block;
+
+    margin-bottom: 8px;
+  }
+
+  .listSizes {
+    gap: 6px;
+  }
+
+  .listSize {
+    min-width: 30px;
+    height: 30px;
+  }
+
+  /* =========================================
+     DESCRIPTION
+  ========================================= */
+
+  .listDescription {
+    margin-bottom: 18px;
+  }
+
+  .listDescription p {
+    font-size: 12px;
+
+    line-height: 1.7;
+  }
+
+  /* =========================================
+     KEY FEATURES
+  ========================================= */
+
+  .listFeatures ul {
+    display: block;
+
+    padding-left: 17px;
+
+    font-size: 12px;
+  }
+
+  .listFeatures li {
+    margin-bottom: 5px;
+  }
+
+  /* =========================================
+     ACTION AREA
+  ========================================= */
+
+  .listActions {
+    display: grid;
+
+    grid-template-columns: auto 1fr auto;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px 20px;
+
+    border-top: 1px solid #eee;
+  }
+
+  /* =========================================
+     ICONS
+  ========================================= */
+
+  .listActionButtons {
+    justify-content: flex-start;
+
+    gap: 6px;
+  }
+
+  .listActionButtons button {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* =========================================
+     PRICE
+  ========================================= */
+
+  .listPriceArea {
+    margin: 0;
+
+    align-items: flex-end;
+  }
+
+  .listPrice {
+    font-size: 18px;
+  }
+
+  .listOldPrice {
+    font-size: 12px;
+  }
+
+  /* =========================================
+     ADD TO CART
+  ========================================= */
+
+  .listAddToCart {
+    width: auto;
+
+    min-width: 120px;
+
+    padding: 12px 15px;
+
+    font-size: 10px;
+  }
+}
+
+.productImageLink,
+.listImageLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.productTitleLink,
+.listTitleLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.productTitleLink:hover .productTitle,
+.listTitleLink:hover .listTitle {
+  color: var(--primarycolor);
+}

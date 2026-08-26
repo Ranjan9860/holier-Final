@@ -1,0 +1,428 @@
+/* =========================================================
+   CHECKOUT SECTION
+========================================================= */
+
+.checkoutSection {
+  width: 100%;
+  background: #ffffff;
+  padding: 70px 40px 100px;
+}
+
+.checkoutContainer {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   PAGE HEADING
+========================================================= */
+
+.pageHeading {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.pageHeading h1 {
+  margin: 0 0 12px;
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #000;
+}
+
+.pageHeading p {
+  margin: 0;
+  color: #777777;
+  font-size: 14px;
+}
+
+/* =========================================================
+   CHECKOUT GRID
+========================================================= */
+
+.checkoutGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(380px, 0.8fr);
+  gap: 70px;
+  align-items: start;
+}
+
+/* =========================================================
+   LEFT SIDE
+========================================================= */
+
+.billingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+.sectionBlock {
+  width: 100%;
+}
+
+.sectionHeading {
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid #dddddd;
+}
+
+.sectionHeading h2,
+.orderHeading h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #000;
+}
+
+.sectionHeading p {
+  margin: 0;
+  color: #777777;
+  font-size: 13px;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px 25px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.formGroup label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #222222;
+}
+
+.formGroup label span {
+  color: #d1282d;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  padding: 14px 15px;
+  outline: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: #222222;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.formGroup input,
+.formGroup select {
+  height: 48px;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  border-color: #222222;
+}
+
+.formGroup input::placeholder,
+.formGroup textarea::placeholder {
+  color: #aaaaaa;
+}
+
+/* =========================================================
+   RIGHT SIDE
+========================================================= */
+
+.orderSection {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  position: sticky;
+  top: 30px;
+}
+
+/* =========================================================
+   ORDER BOX
+========================================================= */
+
+.orderBox,
+.paymentBox {
+  border: 1px solid #dddddd;
+  padding: 30px;
+  background: #ffffff;
+}
+
+.orderHeading {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #dddddd;
+}
+
+/* =========================================================
+   ORDER TABLE
+========================================================= */
+
+.orderTableHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(100px, 0.8fr);
+  gap: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #dddddd;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #000;
+}
+
+.orderTableHeader span:last-child {
+  text-align: right;
+}
+
+.orderProducts {
+  display: flex;
+  flex-direction: column;
+}
+
+.orderProduct {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(100px, 0.8fr);
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid #eeeeee;
+  font-size: 13px;
+}
+
+.productName {
+  display: flex;
+  gap: 5px;
+  align-items: flex-start;
+  line-height: 1.5;
+  color: #000;
+}
+
+.quantity {
+  color: #777777;
+  white-space: nowrap;
+}
+
+.productSubtotal {
+  text-align: right;
+  font-weight: 500;
+  color: #000;
+}
+
+/* =========================================================
+   TOTALS
+========================================================= */
+
+.totalArea {
+  margin-top: 5px;
+  color: #000;
+}
+
+.totalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  font-size: 13px;
+}
+
+.totalRow strong {
+  font-weight: 500;
+}
+
+.grandTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+  padding-top: 20px;
+  border-top: 1px solid #222222;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.grandTotal strong {
+  font-size: 18px;
+}
+
+/* =========================================================
+   PAYMENT
+========================================================= */
+
+.paymentBox {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.paymentBox .orderHeading {
+  margin-bottom: 0;
+}
+
+.placeOrderButton {
+  width: 100%;
+  height: 52px;
+  margin-top: 5px;
+  border: 1px solid #d1282d;
+  background: #d1282d;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.placeOrderButton:hover {
+  background: #b82025;
+  border-color: #b82025;
+}
+
+/* =========================================================
+   EMPTY CART
+========================================================= */
+
+.emptyCart {
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.emptyCart h1 {
+  margin: 0 0 12px;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.emptyCart p {
+  max-width: 500px;
+  margin: 0 0 25px;
+  color: #777777;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.shopButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 30px;
+  background: #d1282d;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+  .checkoutSection {
+    padding: 60px 30px 80px;
+  }
+
+  .checkoutGrid {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+
+  .orderSection {
+    position: static;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+  .checkoutSection {
+    padding: 45px 20px 60px;
+  }
+
+  .pageHeading {
+    margin-bottom: 40px;
+  }
+
+  .pageHeading h1 {
+    font-size: 30px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth {
+    grid-column: auto;
+  }
+
+  .billingSection {
+    gap: 40px;
+  }
+
+  .orderBox,
+  .paymentBox {
+    padding: 20px;
+  }
+
+  .orderTableHeader,
+  .orderProduct {
+    grid-template-columns: minmax(0, 1.5fr) minmax(90px, 0.8fr);
+    gap: 12px;
+  }
+
+  .orderTableHeader {
+    font-size: 11px;
+  }
+
+  .orderProduct {
+    font-size: 12px;
+  }
+
+  .grandTotal {
+    font-size: 16px;
+  }
+
+  .grandTotal strong {
+    font-size: 17px;
+  }
+}

@@ -1,0 +1,1175 @@
+/* =====================================================
+   HEADER
+===================================================== */
+
+.siteHeader {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #eeeeee;
+  position: relative;
+  z-index: 1000;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.siteHeader {
+  width: 100%;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #eeeeee;
+
+  position: relative;
+
+  z-index: 1000;
+}
+
+/* =========================================================
+   HEADER CONTAINER
+========================================================= */
+
+.headerContainer {
+  width: 100%;
+
+  max-width: 1600px;
+
+  margin: 0 auto;
+
+  padding: 18px;
+
+  display: grid;
+
+  /*
+    Column 1 → Menu
+    Column 2 → Logo
+    Column 3 → Left Navigation
+    Column 4 → Search
+    Column 5 → Right Navigation
+    Column 6 → Action Icons
+  */
+
+  grid-template-columns:
+    auto
+    auto
+    auto
+    minmax(350px, 1fr)
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 24px;
+}
+
+/* =========================================================
+   MENU BUTTON
+========================================================= */
+
+.menuButton {
+  width: 24px;
+  height: 24px;
+
+  padding: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--secondarycolor);
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+
+  transition: opacity 0.25s ease;
+}
+
+.menuButton:hover {
+  color: var(--primarycolor);
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.headerLogo {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  text-decoration: none;
+
+  flex-shrink: 0;
+}
+
+.headerLogo img {
+  display: block;
+
+  width: 140px;
+
+  height: auto;
+
+  object-fit: contain;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.headerNav {
+  display: flex;
+
+  align-items: center;
+
+  gap: 60px;
+
+  justify-content: center;
+}
+
+.headerNav a {
+  position: relative;
+
+  color: var(--secondarycolor);
+
+  text-decoration: none;
+
+  font-size: 16px;
+
+  font-weight: 500;
+
+  white-space: nowrap;
+
+  padding: 0 0;
+
+  transition:
+    opacity 0.25s ease,
+    color 0.25s ease;
+}
+
+.headerNav a:hover {
+  color: var(--primarycolor);
+}
+
+/* =========================================================
+   NAVIGATION UNDERLINE
+========================================================= */
+
+.headerNav a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  bottom: 0;
+
+  width: 0;
+
+  height: 1px;
+
+  background: var(--primarycolor);
+
+  transition: width 0.25s ease;
+}
+
+.headerNav a:hover::after {
+  width: 100%;
+}
+
+/* =========================================================
+   CENTER SEARCH
+========================================================= */
+
+.headerSearch {
+  width: 100%;
+
+  max-width: 520px;
+
+  height: 44px;
+
+  display: flex;
+
+  align-items: center;
+
+  border: 1px solid #d8d8d8;
+
+  background: #ffffff;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  margin-left: 20px;
+}
+
+/* =========================================================
+   CATEGORY BUTTON
+========================================================= */
+
+.searchCategory {
+  height: 100%;
+
+  padding: 0 14px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  border: none;
+
+  border-right: 1px solid #dddddd;
+
+  color: #6a6a6a;
+
+  font-size: 14px;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition: background 0.25s ease;
+}
+
+.searchCategory:hover {
+  background: #f8f8f8;
+}
+
+/* =========================================================
+   SEARCH INPUT
+========================================================= */
+
+.headerSearch input {
+  width: 100%;
+
+  height: 100%;
+
+  min-width: 340px;
+
+  padding: 0 14px;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #111111;
+
+  font-size: 14px;
+}
+
+.headerSearch input::placeholder {
+  color: #999999;
+}
+
+/* =========================================================
+   SEARCH BUTTON
+========================================================= */
+
+.searchButton {
+  width: 55px;
+
+  height: 100%;
+
+  padding: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-left: 1px solid #dddddd;
+
+  background: var(--primarycolor);
+
+  color: #ffffff;
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+
+  transition: background 0.25s ease;
+}
+
+.searchButton:hover {
+  background: var(--secondarycolor);
+  color: #ffffff;
+}
+
+/* =========================================================
+   RIGHT ACTIONS
+========================================================= */
+
+.headerActions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 16px;
+
+  flex-shrink: 0;
+}
+
+.headerActions a {
+  position: relative;
+
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: var(--secondarycolor);
+
+  text-decoration: none;
+
+  transition: opacity 0.25s ease;
+}
+
+.headerActions a:hover {
+  color: var(--primarycolor);
+}
+
+/* =========================================================
+   CART COUNT
+========================================================= */
+
+.cartIcon {
+  position: relative;
+}
+
+.cartCount {
+  position: absolute;
+
+  top: -7px;
+
+  right: -7px;
+
+  width: 18px;
+
+  height: 18px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--primarycolor);
+
+  color: #ffffff;
+
+  font-size: 13px;
+
+  line-height: 1;
+
+  font-weight: 500;
+}
+
+/* =========================================================
+   LARGE TABLET / SMALL DESKTOP
+========================================================= */
+
+@media (max-width: 1300px) {
+  .headerContainer {
+    padding-left: 30px;
+    padding-right: 30px;
+
+    gap: 18px;
+  }
+
+  .headerLogo img {
+    width: 125px;
+  }
+
+  .headerNav {
+    gap: 16px;
+  }
+
+  .headerNav a {
+    font-size: 13px;
+  }
+
+  .headerSearch {
+    max-width: 450px;
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+  .headerContainer {
+    grid-template-columns:
+      auto
+      auto
+      1fr
+      auto;
+
+    gap: 18px;
+
+    padding: 16px 25px;
+  }
+
+  /* Hide desktop navigation */
+
+  .headerNavLeft,
+  .headerNavRight {
+    display: none;
+  }
+
+  /* Search */
+
+  .headerSearch {
+    max-width: none;
+  }
+}
+
+/* =========================================================
+   TABLET / MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+  .headerContainer {
+    grid-template-columns:
+      auto
+      auto
+      1fr
+      auto;
+
+    gap: 14px;
+
+    padding: 14px 20px;
+  }
+
+  /* Logo */
+
+  .headerLogo img {
+    width: 110px;
+  }
+
+  /* Search */
+
+  .headerSearch {
+    height: 40px;
+  }
+
+  .searchCategory {
+    display: none;
+  }
+
+  .headerSearch input {
+    padding: 0 10px;
+
+    font-size: 12px;
+  }
+
+  .searchButton {
+    width: 40px;
+  }
+
+  /* Icons */
+
+  .headerActions {
+    gap: 9px;
+  }
+
+  .headerActions a {
+    width: 21px;
+    height: 21px;
+  }
+
+  .headerActions svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  /* Hide account and wishlist */
+
+  .headerActions a:not(.cartIcon) {
+    display: none;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 576px) {
+  .headerContainer {
+    grid-template-columns:
+      auto
+      auto
+      1fr
+      auto;
+
+    gap: 9px;
+
+    padding: 12px 15px;
+  }
+
+  /* Logo */
+
+  .headerLogo img {
+    width: 95px;
+  }
+
+  /* Search */
+
+  .headerSearch {
+    height: 38px;
+  }
+
+  .headerSearch input {
+    font-size: 11px;
+
+    padding: 0 8px;
+  }
+
+  .searchButton {
+    width: 38px;
+  }
+
+  /* Menu */
+
+  .menuButton {
+    width: 22px;
+  }
+
+  /* Cart */
+
+  .headerActions {
+    gap: 5px;
+  }
+
+  .headerActions svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+  .headerContainer {
+    padding-left: 10px;
+    padding-right: 10px;
+
+    gap: 7px;
+  }
+
+  .headerLogo img {
+    width: 85px;
+  }
+
+  .headerSearch input::placeholder {
+    font-size: 10px;
+  }
+}
+
+/* =========================
+   ACTIVE NAVIGATION
+========================= */
+
+.headerNav a.activeNav {
+  position: relative;
+
+  color: var(--primarycolor);
+
+  font-weight: 600;
+}
+
+/* Active underline */
+
+.headerNav a.activeNav::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 1px;
+
+  background: var(--primarycolor);
+}
+
+.cartButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #222;
+  text-decoration: none;
+}
+
+.cartCount {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+
+  min-width: 18px;
+  height: 18px;
+
+  padding: 0 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--primarycolor);
+  color: #fff;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.wishlistButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wishlistCount {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+
+  min-width: 17px;
+  height: 17px;
+
+  padding: 0 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--primarycolor);
+  color: #ffffff;
+
+  border-radius: 50%;
+
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* =========================================================
+   LARGE TABLET / SMALL DESKTOP
+========================================================= */
+
+@media (max-width: 1300px) {
+  .headerContainer {
+    padding-left: 30px;
+    padding-right: 30px;
+    gap: 18px;
+  }
+
+  .headerLogo img {
+    width: 125px;
+  }
+
+  .headerNav {
+    gap: 20px;
+  }
+
+  .headerNav a {
+    font-size: 13px;
+  }
+
+  .headerSearch {
+    max-width: 450px;
+    margin-left: 0;
+  }
+
+  .headerSearch input {
+    min-width: 0;
+  }
+}
+
+/* =========================================================
+   TABLET
+   769px - 1100px
+========================================================= */
+
+@media (max-width: 1100px) {
+  .headerContainer {
+    grid-template-columns: auto auto minmax(250px, 1fr) auto;
+    gap: 18px;
+    padding: 16px 25px;
+  }
+
+  /* Hide desktop navigation */
+
+  .headerNavLeft,
+  .headerNavRight {
+    display: none;
+  }
+
+  /* Logo */
+
+  .headerLogo img {
+    width: 120px;
+  }
+
+  /* Search */
+
+  .headerSearch {
+    width: 100%;
+    max-width: none;
+    height: 42px;
+    margin-left: 0;
+  }
+
+  .headerSearch input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Actions */
+
+  .headerActions {
+    gap: 12px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   769px and below
+========================================================= */
+
+@media (max-width: 768px) {
+  .headerContainer {
+    display: grid;
+
+    /* Menu | Logo | flexible space | Icons */
+    grid-template-columns: auto auto 1fr auto;
+
+    gap: 12px;
+
+    padding: 14px 20px;
+
+    align-items: center;
+  }
+
+  /* =====================================================
+     MENU
+  ===================================================== */
+
+  .menuButton {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* =====================================================
+     LOGO
+  ===================================================== */
+
+  .headerLogo {
+    justify-content: flex-start;
+  }
+
+  .headerLogo img {
+    width: 105px;
+  }
+
+  /* =====================================================
+     HIDE DESKTOP NAVIGATION
+  ===================================================== */
+
+  .headerNavLeft,
+  .headerNavRight,
+  .headerNav {
+    display: none;
+  }
+
+  /* =====================================================
+     SEARCH
+     
+     Move search to second row
+  ===================================================== */
+
+  .headerSearch {
+    grid-column: 1 / -1;
+
+    grid-row: 2;
+
+    width: 100%;
+    max-width: none;
+
+    height: 40px;
+
+    margin: 0;
+
+    border-radius: 20px;
+  }
+
+  /* Hide category */
+
+  .searchCategory {
+    display: none;
+  }
+
+  .headerSearch input {
+    width: 100%;
+    min-width: 0;
+
+    padding: 0 12px;
+
+    font-size: 13px;
+  }
+
+  .searchButton {
+    width: 42px;
+  }
+
+  /* =====================================================
+     HEADER ACTIONS
+  ===================================================== */
+
+  .headerActions {
+    gap: 10px;
+  }
+
+  .headerActions a {
+    width: 22px;
+    height: 22px;
+  }
+
+  .headerActions svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Hide account/wishlist if required */
+
+  .headerActions a:not(.cartIcon),
+  .headerActions a:not(.cartButton) {
+    display: none;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   576px and below
+========================================================= */
+
+@media (max-width: 576px) {
+  .headerContainer {
+    grid-template-columns: auto auto 1fr auto;
+
+    gap: 9px;
+
+    padding: 12px 15px;
+  }
+
+  /* Logo */
+
+  .headerLogo img {
+    width: 95px;
+  }
+
+  /* Menu */
+
+  .menuButton {
+    width: 21px;
+    height: 21px;
+  }
+
+  /* Search */
+
+  .headerSearch {
+    height: 38px;
+  }
+
+  .headerSearch input {
+    font-size: 12px;
+    padding: 0 10px;
+  }
+
+  .headerSearch input::placeholder {
+    font-size: 11px;
+  }
+
+  .searchButton {
+    width: 38px;
+  }
+
+  /* Cart */
+
+  .headerActions {
+    gap: 6px;
+  }
+
+  .headerActions a {
+    width: 20px;
+    height: 20px;
+  }
+
+  .headerActions svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+   400px and below
+========================================================= */
+
+@media (max-width: 400px) {
+  .headerContainer {
+    padding: 10px 12px;
+    gap: 7px;
+  }
+
+  .headerLogo img {
+    width: 85px;
+  }
+
+  .menuButton {
+    width: 20px;
+    height: 20px;
+  }
+
+  .headerSearch {
+    height: 36px;
+  }
+
+  .headerSearch input {
+    font-size: 11px;
+  }
+
+  .headerSearch input::placeholder {
+    font-size: 10px;
+  }
+
+  .searchButton {
+    width: 36px;
+  }
+}
+
+/* =========================================================
+   SIDEBAR OVERLAY
+========================================================= */
+
+.menuOverlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  z-index: 2000;
+
+  animation: fadeIn 0.25s ease;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sideMenu {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 340px;
+  max-width: 85vw;
+  height: 100vh;
+
+  background: #ffffff;
+
+  z-index: 2001;
+
+  display: flex;
+  flex-direction: column;
+
+  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.12);
+
+  animation: slideIn 0.3s ease;
+}
+
+/* =========================================================
+   SIDEBAR HEADER
+========================================================= */
+
+.sideMenuHeader {
+  width: 100%;
+
+  min-height: 90px;
+
+  padding: 20px 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #eeeeee;
+}
+
+/* =========================================================
+   SIDEBAR LOGO
+========================================================= */
+
+.sideMenuLogo {
+  display: flex;
+  align-items: center;
+
+  text-decoration: none;
+}
+
+.sideMenuLogo img {
+  display: block;
+
+  width: 110px;
+  height: auto;
+
+  object-fit: contain;
+}
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.closeMenu {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  color: var(--secondarycolor);
+
+  cursor: pointer;
+
+  transition:
+    color 0.25s ease,
+    background 0.25s ease;
+}
+
+.closeMenu:hover {
+  color: var(--primarycolor);
+  background: #f7f7f7;
+}
+
+/* =========================================================
+   SIDEBAR NAVIGATION
+========================================================= */
+
+.sideMenuNav {
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px 25px;
+}
+
+.sideMenuNav a {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 52px;
+
+  color: var(--secondarycolor);
+
+  text-decoration: none;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  border-bottom: 1px solid #eeeeee;
+
+  transition:
+    color 0.25s ease,
+    padding-left 0.25s ease;
+}
+
+.sideMenuNav a:hover {
+  color: var(--primarycolor);
+  padding-left: 8px;
+}
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   MOBILE SIDEBAR
+========================================================= */
+
+@media (max-width: 576px) {
+  .sideMenu {
+    width: 300px;
+  }
+
+  .sideMenuHeader {
+    min-height: 75px;
+    padding: 15px 20px;
+  }
+
+  .sideMenuLogo img {
+    width: 95px;
+  }
+
+  .sideMenuNav {
+    padding: 15px 20px;
+  }
+
+  .sideMenuNav a {
+    min-height: 48px;
+    font-size: 14px;
+  }
+}
