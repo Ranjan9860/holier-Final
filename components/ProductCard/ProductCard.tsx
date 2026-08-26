@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, Search, ShoppingBag } from "lucide-react";
@@ -8,13 +7,12 @@ import { Heart, Search, ShoppingBag } from "lucide-react";
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import ProductImageModal from "../ProductImageModal/ProductImageModal";
 
 import styles from "./ProductCard.module.css";
 
 type ProductCardProps = {
   product: Product;
-  onZoom: (product: Product) => void;
+  onZoom?: (product: Product) => void;
   viewMode?: "grid" | "list";
 };
 
@@ -25,7 +23,6 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const [zoomProduct, setZoomProduct] = useState<Product | null>(null);
 
   /* =====================================================
      LIST VIEW
@@ -336,15 +333,6 @@ export default function ProductCard({
           </button>
         </div>
       </div>
-      {zoomProduct && (
-        <ProductImageModal
-          image={zoomProduct.image}
-          title={zoomProduct.title}
-          onClose={() => {
-            setZoomProduct(null);
-          }}
-        />
-      )}
     </article>
   );
 }

@@ -1,5 +1,10 @@
-import AccountDashboard from "@/components/Account/AccountDashboard";
+import { Suspense } from "react";
+import Account from "@/components/Account/AccountDashboard";
 
 export default function AccountPage() {
-  return <AccountDashboard />;
+  return (
+    <Suspense fallback={<div>Loading account...</div>}>
+      <Account />
+    </Suspense>
+  );
 }

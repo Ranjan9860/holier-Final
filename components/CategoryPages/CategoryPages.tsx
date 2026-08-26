@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import ProductCard from "@/components/ProductCard/ProductCard";
+import ProductImageModal from "../ProductImageModal/ProductImageModal";
+import { Product } from "@/types/product";
 import { products } from "@/data/products";
 import { navigationItems } from "@/data/navigation";
 import { filterProducts, ProductSort } from "@/utils/productFilters";
@@ -28,6 +30,8 @@ export default function Shop() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
 
   const [selectedColor, setSelectedColor] = useState<string>("all");
+
+  const [zoomProduct, setZoomProduct] = useState<Product | null>(null);
 
   const [sortBy, setSortBy] = useState<ProductSort>("default");
 
@@ -307,7 +311,7 @@ export default function Shop() {
                   <ProductCard
                     key={product.id}
                     product={product}
-                    onZoom={() => {}}
+                    onZoom={setZoomProduct}
                     viewMode={viewMode}
                   />
                 ))
