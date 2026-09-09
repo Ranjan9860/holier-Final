@@ -1,18 +1,37 @@
-import Hero from "@/components/Hero/Hero";
-import FeaturedSections from "@/components/FeaturedSections/FeaturedSections";
-import ProductShowcase from "@/components/ProductShowcase/ProductShowcase";
-import Practice from "@/components/Practice/Practice";
+import {
+  CategoryGrid,
+  ProductSection,
+  SaleSection,
+  Section,
+} from "@/components/Home/HomeSections";
+import HeroCarousel from "@/components/Home/HeroCarousel";
+import { getCatalogFilters, getProducts, getSaleProducts } from "@/lib/api/products";
 
-export default function Home() {
+export default async function Home() {
+  const [{ products }, { categories }, saleProducts] = await Promise.all([
+    getProducts({ sort: "-created_at", per_page: "8" }),
+    getCatalogFilters(),
+    getSaleProducts().catch(() => []),
+  ]);
+
   return (
     <main>
-      <Hero />
+      <HeroCarousel />
 
-      <FeaturedSections />
+      {categories.length > 0 && (
+        <Section title="Shop by category" link="/categories" linkLabel="All categories">
+          <CategoryGrid categories={categories} limit={6} />
+        </Section>
+      )}
 
-      <ProductShowcase />
+      <ProductSection
+        title="New arrivals"
+        products={products}
+        link="/new-arrivals"
+        linkLabel="All new arrivals"
+      />
 
-      <ProductShowcase reverse />
+      <SaleSection products={saleProducts} />
     </main>
   );
 }

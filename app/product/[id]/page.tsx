@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
-import { products } from "@/data/products";
 import ProductDetail from "@/components/ProductDetail/ProductDetail";
+import { getProduct } from "@/lib/api/products";
 
 type ProductPageProps = {
   params: Promise<{
@@ -12,10 +12,12 @@ type ProductPageProps = {
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
 
-  const product = products.find((item) => item.id === Number(id));
-
-  if (!product) {
-    notFound();
+  let product;
+  try {
+    product = await getProduct(id);
+  } catch (error) {
+    if ((error as { status?: number }).status === 404) notFound();
+    throw error;
   }
 
   return <ProductDetail product={product} />;

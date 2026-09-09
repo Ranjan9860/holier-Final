@@ -1,0 +1,18 @@
+.moveButton {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 16px;
+  border: none;
+  background: var(--primarycolor);
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.moveButton:hover {
+  opacity: 0.9;
+}

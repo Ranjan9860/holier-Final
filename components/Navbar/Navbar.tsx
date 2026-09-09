@@ -1,24 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useAuth } from "@/context/AuthContext";
+import type { ApiCategory } from "@/types/api";
 
 import styles from "./Navbar.module.css";
 
-import { Menu, Search, UserRound, Heart, ShoppingBag, X } from "lucide-react";
+import { ChevronDown, LoaderCircle, Menu, Search, UserRound, Heart, ShoppingBag, X } from "lucide-react";
 
-export default function Navbar() {
+type NavbarProps = {
+  categories: ApiCategory[];
+  hasSale: boolean;
+};
+
+export default function Navbar({ categories, hasSale }: NavbarProps) {
   const pathname = usePathname();
-  const { cartCount } = useCart();
-  const { wishlist } = useWishlist();
+  const { cartCount, loading: cartLoading } = useCart();
+  const { items: wishlistItems, loading: wishlistLoading } = useWishlist();
+  const { customer, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const closeDropdowns = (event: PointerEvent) => {
+      headerRef.current?.querySelectorAll("details[open]").forEach((menu) => {
+        if (!menu.contains(event.target as Node)) menu.removeAttribute("open");
+      });
+    };
+    document.addEventListener("pointerdown", closeDropdowns);
+    return () => document.removeEventListener("pointerdown", closeDropdowns);
+  }, []);
+
+  const linkClass = (href: string) =>
+    pathname === href ? `${styles.navLink} ${styles.activeNav}` : styles.navLink;
 
   return (
-    <header className={styles.siteHeader}>
+    <header className={styles.siteHeader} ref={headerRef}>
       <div className={styles.headerContainer}>
         {/* =================================================
             MENU
@@ -31,7 +53,7 @@ export default function Navbar() {
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(true)}
         >
-          <Menu size={22} strokeWidth={2.2} />
+          <Menu size={22} strokeWidth={1.6} />
         </button>
 
         {/* =================================================
@@ -39,83 +61,44 @@ export default function Navbar() {
         ================================================= */}
 
         <Link href="/" className={styles.headerLogo}>
-          <Image
-            src="/image/holier-logo.png"
-            alt="Holier"
-            width={140}
-            height={50}
-            priority
-          />
+          <Image src="/image/holier-logo.png" alt="Holier" width={140} height={50} priority />
         </Link>
-
-        {/* =================================================
-            SEARCH
-        ================================================= */}
-
-        <div className={styles.headerSearch}>
-          <input
-            type="text"
-            placeholder="Search products..."
-            aria-label="Search products"
-          />
-
-          <button
-            type="button"
-            className={styles.searchButton}
-            aria-label="Search"
-          >
-            <Search size={20} strokeWidth={1.5} />
-          </button>
-        </div>
 
         {/* =================================================
             NAVIGATION
         ================================================= */}
 
         <nav className={styles.headerNav}>
-          <Link
-            href="/shop"
-            className={
-              pathname === "/shop"
-                ? `${styles.navLink} ${styles.activeNav}`
-                : styles.navLink
-            }
-          >
+          <Link href="/shop" className={linkClass("/shop")}>
             Shop
           </Link>
 
-          <Link
-            href="/new-arrivals"
-            className={
-              pathname === "/new-arrivals"
-                ? `${styles.navLink} ${styles.activeNav}`
-                : styles.navLink
-            }
-          >
-            New Arrivals
-          </Link>
+          {categories.length > 0 && (
+            <details className={styles.dropdown}>
+              <summary className={linkClass("/categories")}>
+                Categories
+                <ChevronDown size={14} strokeWidth={1.6} />
+              </summary>
 
-          <Link
-            href="/sale"
-            className={
-              pathname === "/sale"
-                ? `${styles.navLink} ${styles.activeNav}`
-                : styles.navLink
-            }
-          >
-            Sale
-          </Link>
+              <div className={styles.categoryPanel}>
+                {categories.map((category) => (
+                  <Link key={category.id} href={`/shop?category_id=${category.id}`} onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>
+                    {category.category_name}
+                  </Link>
+                ))}
 
-          <Link
-            href="/collections"
-            className={
-              pathname === "/collections"
-                ? `${styles.navLink} ${styles.activeNav}`
-                : styles.navLink
-            }
-          >
-            Collections
-          </Link>
+                <Link href="/categories" className={styles.panelFooterLink} onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>
+                  All categories
+                </Link>
+              </div>
+            </details>
+          )}
+
+          {hasSale && (
+            <Link href="/sale" className={linkClass("/sale")}>
+              Sale
+            </Link>
+          )}
         </nav>
 
         {/* =================================================
@@ -123,102 +106,118 @@ export default function Navbar() {
         ================================================= */}
 
         <div className={styles.headerActions}>
+          {/* SEARCH */}
+
+          <details className={styles.dropdown}>
+            <summary aria-label="Search" className={styles.iconSummary}>
+              <Search size={20} strokeWidth={1.6} />
+            </summary>
+
+            <form className={styles.searchPanel} action="/shop">
+              <input name="q" type="search" placeholder="Search products" aria-label="Search products" />
+              <button type="submit">Search</button>
+            </form>
+          </details>
+
           {/* ACCOUNT */}
 
-          <Link
-            href="/account"
-            aria-label="Account"
-            className={styles.accountButton}
-          >
-            <UserRound size={21} strokeWidth={2.2} />
-          </Link>
+          <details className={styles.dropdown}>
+            <summary aria-label="Account" className={styles.iconSummary}>
+              <UserRound size={20} strokeWidth={1.6} />
+            </summary>
+
+            <div className={styles.accountPanel}>
+              {customer ? (
+                <>
+                  <Link href="/account" onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>My account</Link>
+                  <button type="button" onClick={(event) => {
+                    event.currentTarget.closest("details")?.removeAttribute("open");
+                    void logout();
+                  }}>
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link href="/auth" onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>Sign in</Link>
+              )}
+            </div>
+          </details>
 
           {/* WISHLIST */}
 
-          <Link
-            href="/account?tab=wishlist"
-            aria-label="Wishlist"
-            className={styles.wishlistButton}
-          >
-            <Heart size={21} strokeWidth={2.2} />
+          <Link href="/wishlist" aria-label="Wishlist" className={styles.iconLink}>
+            <Heart size={20} strokeWidth={1.6} />
 
-            {wishlist.length > 0 && (
-              <span className={styles.wishlistCount}>{wishlist.length}</span>
-            )}
+            {wishlistLoading
+              ? <LoaderCircle className={`${styles.badgeLoader} button-spinner`} aria-hidden="true" />
+              : wishlistItems.length > 0 && <span className={styles.badge}>{wishlistItems.length}</span>}
           </Link>
 
           {/* CART */}
 
-          <Link href="/cart" aria-label="Cart" className={styles.cartButton}>
-            <ShoppingBag size={22} />
+          <Link href="/cart" aria-label="Cart" className={styles.iconLink}>
+            <ShoppingBag size={20} strokeWidth={1.6} />
 
-            {cartCount > 0 && (
-              <span className={styles.cartCount}>{cartCount}</span>
-            )}
+            {cartLoading
+              ? <LoaderCircle className={`${styles.badgeLoader} button-spinner`} aria-hidden="true" />
+              : cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
           </Link>
         </div>
+      </div>
 
-        {/* =====================================================
-    MOBILE SIDEBAR
-===================================================== */}
+      {/* =====================================================
+          MOBILE SIDEBAR
+      ===================================================== */}
 
-        {menuOpen && (
-          <>
-            {/* Overlay */}
-            <div
-              className={styles.menuOverlay}
-              onClick={() => setMenuOpen(false)}
-            />
+      {menuOpen && (
+        <>
+          <div className={styles.menuOverlay} onClick={() => setMenuOpen(false)} />
 
-            {/* Sidebar */}
-            <aside className={styles.sideMenu}>
-              {/* Sidebar Header */}
-              <div className={styles.sideMenuHeader}>
-                <Link
-                  href="/"
-                  className={styles.sideMenuLogo}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <Image
-                    src="/image/holier-logo.png"
-                    alt="Holier"
-                    width={100}
-                    height={50}
-                  />
-                </Link>
+          <aside className={styles.sideMenu}>
+            <div className={styles.sideMenuHeader}>
+              <Link href="/" onClick={() => setMenuOpen(false)}>
+                <Image src="/image/holier-logo.png" alt="Holier" width={100} height={36} />
+              </Link>
 
-                <button
-                  type="button"
-                  className={styles.closeMenu}
-                  aria-label="Close menu"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <X size={24} strokeWidth={2} />
-                </button>
-              </div>
+              <button type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
+                <X size={22} strokeWidth={1.6} />
+              </button>
+            </div>
 
-              {/* Navigation */}
-              <nav className={styles.sideMenuNav}>
-                <Link href="/new-arrivals" onClick={() => setMenuOpen(false)}>
-                  New Arrivals
-                </Link>
+            <form className={styles.sideSearch} action="/shop" onSubmit={() => setMenuOpen(false)}>
+              <input name="q" type="search" placeholder="Search products" aria-label="Search products" />
+            </form>
 
-                <Link href="/shop" onClick={() => setMenuOpen(false)}>
-                  Shop
-                </Link>
+            <nav className={styles.sideMenuNav}>
+              <Link href="/shop" onClick={() => setMenuOpen(false)}>
+                Shop
+              </Link>
 
-                <Link href="/collections" onClick={() => setMenuOpen(false)}>
-                  Collections
-                </Link>
-
+              {hasSale && (
                 <Link href="/sale" onClick={() => setMenuOpen(false)}>
                   Sale
                 </Link>
-              </nav>
-            </aside>
-          </>
-        )}
-      </div>
+              )}
+            </nav>
+
+            {categories.length > 0 && (
+              <div className={styles.sideCategories}>
+                <span className="eyebrow">Categories</span>
+
+                {categories.map((category) => (
+                  <Link
+                    key={category.id}
+                    href={`/shop?category_id=${category.id}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {category.category_name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </aside>
+        </>
+      )}
     </header>
   );
 }

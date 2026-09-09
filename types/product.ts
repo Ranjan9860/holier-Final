@@ -1,41 +1,50 @@
 export type Review = {
-  id: number;
+  id: string | number;
   name: string;
   rating: number;
   comment: string;
   date: string;
 };
 
-export type SimilarProduct = {
-  id: number;
-  title: string;
-  category: string;
-  image: string;
+export type ProductVariant = {
+  id: string;
+  options: Record<string, string>;
+  images: string[];
   price: number;
   oldPrice?: number;
+  stockStatus?: "in_stock" | "low_stock" | "out_of_stock";
+};
+
+export type ProductSale = {
+  name: string;
+  endsAt?: string;
 };
 
 export type Product = {
-  id: number;
+  id: string;
+  slug?: string;
   title: string;
   image: string;
-
-  // These are required because every product has them
   images: string[];
 
   price: number;
+  // Highest variant price, only set when the product spans a price range.
+  priceMax?: number;
   oldPrice?: number;
 
-  colors: string[];
-  colorNames?: string[];
-  sizes: string[];
-
+  brand?: string;
   category?: string;
   description?: string;
 
-  // Required because every product has keyFeatures
-  keyFeatures: string[];
-
+  rating?: number;
+  reviewsCount?: number;
   reviews?: Review[];
-  similarProducts?: SimilarProduct[];
+
+  stockStatus?: "in_stock" | "low_stock" | "out_of_stock";
+  hasVariants?: boolean;
+  // Only known once variants have been fetched (product page, flash sale).
+  variantCount?: number;
+  variants?: ProductVariant[];
+
+  sale?: ProductSale;
 };

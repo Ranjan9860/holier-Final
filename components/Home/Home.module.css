@@ -1,0 +1,268 @@
+/* =========================================================
+   CAMPAIGN HERO
+========================================================= */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  height: calc(100svh - 78px);
+  min-height: 520px;
+  padding: clamp(2rem, 6vw, 5rem) var(--gutter);
+  overflow: hidden;
+  color: #fff;
+  background: #29251f;
+  line-height: 0;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgb(10 8 6 / 76%) 0%, rgb(10 8 6 / 38%) 48%, rgb(10 8 6 / 12%) 100%);
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  width: min(100%, var(--maxwidth));
+  margin-inline: auto;
+  padding-inline: clamp(3.5rem, 5vw, 4.5rem);
+  line-height: 1.6;
+}
+
+.heroContent h1 {
+  max-width: 12ch;
+  font-size: clamp(2.75rem, 6vw, 5.5rem);
+}
+
+.heroImage {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+}
+
+.heroImageAnimated {
+  transition: opacity 0.8s ease;
+}
+
+.heroImageActive {
+  opacity: 1;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.heroControls {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: clamp(1rem, 2vw, 2rem);
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.hero:hover .heroControls,
+.hero:focus-within .heroControls {
+  opacity: 1;
+}
+
+.heroControls button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 65%);
+  border-radius: 50%;
+  background: rgb(10 8 6 / 24%);
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.heroControls button:hover {
+  background: #fff;
+  color: var(--foreground);
+}
+
+.heroControls svg {
+  width: 18px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.buttonSolid,
+.buttonOutline {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 2rem;
+  border: 1px solid currentColor;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.buttonSolid {
+  background: #fff;
+  border-color: #fff;
+  color: var(--foreground);
+}
+
+.buttonSolid:hover {
+  background: transparent;
+  color: #fff;
+}
+
+.hero .buttonOutline {
+  color: #fff;
+}
+
+.hero .buttonOutline:hover {
+  background: #fff;
+  color: var(--foreground);
+}
+
+.buttonOutline:hover {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+.section {
+  padding: clamp(3rem, 7vw, 5.5rem) 0;
+  border-top: 1px solid var(--bordercolor);
+}
+
+.hero + .section {
+  border-top: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: clamp(1.75rem, 4vw, 3rem);
+}
+
+.sectionHeader h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+}
+
+.sectionLink {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--foreground);
+  padding-bottom: 2px;
+  white-space: nowrap;
+}
+
+.sectionLink:hover {
+  color: var(--primarycolor);
+  border-bottom-color: var(--primarycolor);
+}
+
+/* =========================================================
+   CATEGORIES
+========================================================= */
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.categoryCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.categoryImage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 5;
+  background: var(--surface);
+  border: 1px solid var(--bordercolor);
+  overflow: hidden;
+}
+
+.cover {
+  object-fit: cover;
+}
+
+.categoryInitial {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 6vw, 4.5rem);
+  color: var(--bordercolor);
+}
+
+.categoryCard h3 {
+  font-size: 18px;
+}
+
+.categoryCard:hover h3 {
+  color: var(--primarycolor);
+}
+
+.categoryCount {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--secondarycolor);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .hero {
+    height: calc(100svh - 69px);
+  }
+
+  .hero::after {
+    background: linear-gradient(0deg, rgb(10 8 6 / 78%) 0%, rgb(10 8 6 / 10%) 75%);
+  }
+
+  .heroContent {
+    padding-bottom: 4.5rem;
+  }
+
+}
+
+@media (hover: none) {
+  .heroControls {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroImageAnimated {
+    transition: none;
+  }
+}

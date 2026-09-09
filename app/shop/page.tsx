@@ -1,5 +1,22 @@
-import CategoryPages from "@/components/CategoryPages/CategoryPages";
+import Catalog from "@/components/Catalog/Catalog";
+import { getCatalogFilters, getProducts, parseProductQuery } from "@/lib/api/products";
 
-export default function ShopPage() {
-  return <CategoryPages />;
+export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
+  const query = parseProductQuery(await searchParams);
+  const [{ products, meta }, filters] = await Promise.all([
+    getProducts({ ...query, per_page: "24" }),
+    getCatalogFilters(),
+  ]);
+
+  return (
+    <Catalog
+      title="Shop"
+      description="The complete Holier catalog."
+      products={products}
+      meta={meta}
+      query={query}
+      basePath="/shop"
+      {...filters}
+    />
+  );
 }

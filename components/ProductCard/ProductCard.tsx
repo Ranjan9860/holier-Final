@@ -2,336 +2,120 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Search, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Heart, LoaderCircle } from "lucide-react";
 
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { formatPrice, formatPriceRange } from "@/lib/format";
 
 import styles from "./ProductCard.module.css";
 
 type ProductCardProps = {
   product: Product;
-  onZoom?: (product: Product) => void;
-  viewMode?: "grid" | "list";
+  priority?: boolean;
 };
 
-export default function ProductCard({
-  product,
-  onZoom,
-  viewMode = "grid",
-}: ProductCardProps) {
+export default function ProductCard({ product, priority = false }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const router = useRouter();
+  const [cartPending, setCartPending] = useState(false);
+  const [wishlistPending, setWishlistPending] = useState(false);
 
-  /* =====================================================
-     LIST VIEW
-  ===================================================== */
+  const href = `/product/${product.slug || product.id}`;
+  const outOfStock = product.stockStatus === "out_of_stock";
+  const unavailable = outOfStock || product.price <= 0;
+  const saved = isInWishlist(product.id);
 
-  if (viewMode === "list") {
-    return (
-      <article className={styles.listCard}>
-        {/* =================================================
-            LEFT - PRODUCT IMAGE
-        ================================================= */}
-
-        <div className={styles.listImageWrapper}>
-          <Link
-            href={`/product/${product.id}`}
-            className={styles.productImageLink}
-          >
-            <Image
-              src={product.image}
-              alt={product.title}
-              width={800}
-              height={600}
-              sizes="(max-width: 768px) 50vw, 20vw"
-              className={styles.productImage}
-            />
-          </Link>
-        </div>
-
-        {/* =================================================
-            CENTER - PRODUCT INFORMATION
-        ================================================= */}
-
-        <div className={styles.listInfo}>
-          {/* Category */}
-
-          <p className={styles.listCategory}>
-            {product.category || "COLLECTION"}
-          </p>
-
-          {/* Title */}
-
-          <Link
-            href={`/product/${product.id}`}
-            className={styles.productTitleLink}
-          >
-            <h3 className={styles.productTitle}>{product.title}</h3>
-          </Link>
-
-          {/* Color */}
-
-          <div className={styles.listColorRow}>
-            <span className={styles.listLabel}>Color:</span>
-
-            <div className={styles.listColors}>
-              {product.colors.map((color, index) => (
-                <span
-                  key={`${product.id}-list-color-${index}`}
-                  className={styles.listColor}
-                  style={{
-                    backgroundColor: color,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Available Sizes */}
-
-          <div className={styles.listSizeRow}>
-            <span className={styles.listLabel}>Available Size:</span>
-
-            <div className={styles.listSizes}>
-              {product.sizes.map((size) => (
-                <span
-                  key={`${product.id}-list-size-${size}`}
-                  className={styles.listSize}
-                >
-                  {size}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Description */}
-
-          <div className={styles.listDescription}>
-            <span className={styles.listLabel}>Description</span>
-
-            <p>
-              {product.description ||
-                "A premium product designed with comfort, quality and modern style in mind."}
-            </p>
-          </div>
-
-          {/* Key Features */}
-
-          <div className={styles.listFeatures}>
-            <span className={styles.listLabel}>Key Features</span>
-
-            <ul>
-              {(
-                product.keyFeatures || [
-                  "Premium quality",
-                  "Comfortable fit",
-                  "Modern design",
-                ]
-              ).map((feature, index) => (
-                <li key={`${product.id}-feature-${index}`}>{feature}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* =================================================
-            RIGHT - ACTIONS / PRICE / CART
-        ================================================= */}
-
-        <div className={styles.listActions}>
-          {/* Zoom + Wishlist */}
-
-          <div className={styles.listActionButtons}>
-            {/* Zoom */}
-
-            <button
-              type="button"
-              aria-label="Zoom product image"
-              onClick={(event) => {
-                event.stopPropagation();
-                onZoom?.(product);
-              }}
-            >
-              <Search size={18} strokeWidth={1.5} />
-            </button>
-
-            {/* Wishlist */}
-
-            <button
-              type="button"
-              aria-label={
-                isInWishlist(product.id)
-                  ? "Remove from wishlist"
-                  : "Add to wishlist"
-              }
-              onClick={(event) => {
-                event.stopPropagation();
-                toggleWishlist(product.id);
-              }}
-            >
-              <Heart
-                size={19}
-                strokeWidth={1.5}
-                fill={isInWishlist(product.id) ? "currentColor" : "none"}
-              />
-            </button>
-          </div>
-
-          {/* Price */}
-
-          <div className={styles.listPriceArea}>
-            <span className={styles.listPrice}>Rs {product.price}</span>
-
-            {product.oldPrice && (
-              <span className={styles.listOldPrice}>Rs {product.oldPrice}</span>
-            )}
-          </div>
-
-          {/* Add To Cart */}
-
-          <button
-            type="button"
-            className={styles.listAddToCart}
-            onClick={() => addToCart(product)}
-          >
-            <ShoppingBag size={17} strokeWidth={1.5} />
-
-            <span>Add to Cart</span>
-          </button>
-        </div>
-      </article>
-    );
-  }
-
-  /* =====================================================
-     GRID VIEW
-  ===================================================== */
+  // Variant products need a chosen variant before cart or wishlist identity exists.
+  const openOptions = () => router.push(href);
+  const handleCart = async () => {
+    if (product.hasVariants) return openOptions();
+    setCartPending(true);
+    try { await addToCart(product); } finally { setCartPending(false); }
+  };
+  const handleWishlist = async () => {
+    if (product.hasVariants) return openOptions();
+    setWishlistPending(true);
+    try { await toggleWishlist(product.id); } finally { setWishlistPending(false); }
+  };
 
   return (
-    <article className={styles.productCard}>
-      {/* =================================================
-          PRODUCT IMAGE
-      ================================================= */}
-
+    <article className={styles.card}>
       <div className={styles.imageWrapper}>
-        <Link
-          href={`/product/${product.id}`}
-          className={styles.productImageLink}
-        >
+        <Link href={href} className={styles.imageLink}>
           <Image
             src={product.image}
             alt={product.title}
-            width={800}
-            height={600}
-            sizes="(max-width: 768px) 50vw, 20vw"
-            className={styles.productImage}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className={styles.image}
+            priority={priority}
           />
         </Link>
 
-        {/* =================================================
-            PRODUCT ACTIONS
-        ================================================= */}
+        {/* Badges are only rendered from real API state */}
+        <div className={styles.badges}>
+          {product.sale && <span className={styles.saleBadge}>{product.sale.name}</span>}
 
-        <div className={styles.productActions}>
-          {/* Wishlist */}
+          {outOfStock && <span className={styles.badge}>Out of stock</span>}
 
-          <button
-            type="button"
-            className={styles.actionButton}
-            aria-label={
-              isInWishlist(product.id)
+          {!outOfStock && product.stockStatus === "low_stock" && (
+            <span className={styles.badge}>Low stock</span>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className={styles.wishlistButton}
+          aria-label={
+            product.hasVariants
+              ? "Choose options to save this product"
+              : saved
                 ? "Remove from wishlist"
                 : "Add to wishlist"
-            }
-            onClick={(event) => {
-              event.stopPropagation();
-              toggleWishlist(product.id);
-            }}
-          >
-            <Heart
-              size={18}
-              strokeWidth={1.5}
-              fill={isInWishlist(product.id) ? "currentColor" : "none"}
-            />
-          </button>
-
-          {/* Zoom */}
-
-          <button
-            type="button"
-            className={styles.actionButton}
-            aria-label="Zoom product image"
-            onClick={(event) => {
-              event.stopPropagation();
-              onZoom?.(product);
-            }}
-          >
-            <Search size={17} strokeWidth={1.8} />
-          </button>
-        </div>
+          }
+          disabled={wishlistPending}
+          aria-busy={wishlistPending}
+          onClick={() => void handleWishlist()}
+        >
+          {wishlistPending
+            ? <LoaderCircle className="button-spinner" size={17} aria-hidden="true" />
+            : <Heart size={17} strokeWidth={1.5} fill={saved ? "currentColor" : "none"} />}
+        </button>
       </div>
 
-      {/* =================================================
-          PRODUCT INFORMATION
-      ================================================= */}
+      <div className={styles.info}>
+        {(product.category || product.brand) && (
+          <p className={styles.meta}>{product.category || product.brand}</p>
+        )}
 
-      <div className={styles.productInfo}>
-        {/* Title */}
-
-        <Link
-          href={`/product/${product.id}`}
-          className={styles.productTitleLink}
-        >
-          <h3 className={styles.productTitle}>{product.title}</h3>
+        <Link href={href}>
+          <h3 className={styles.title}>{product.title}</h3>
         </Link>
 
-        {/* Colors */}
+        <div className={styles.priceRow}>
+          <span className={styles.price}>{formatPriceRange(product.price, product.priceMax)}</span>
 
-        <div className={styles.colors}>
-          {product.colors.map((color, index) => (
-            <span
-              key={`${product.id}-color-${index}`}
-              className={styles.color}
-              style={{
-                backgroundColor: color,
-              }}
-            />
-          ))}
+          {product.oldPrice && <del className={styles.oldPrice}>{formatPrice(product.oldPrice)}</del>}
         </div>
 
-        {/* Sizes */}
+        {product.hasVariants && product.variantCount ? (
+          <p className={styles.options}>{product.variantCount} options</p>
+        ) : null}
 
-        <p className={styles.sizes}>Size: {product.sizes.join(" | ")}</p>
-
-        {/* =================================================
-            PRICE / ADD TO CART
-        ================================================= */}
-
-        <div className={styles.priceArea}>
-          {/* Normal Price */}
-
-          <div className={styles.priceWrapper}>
-            <span className={styles.price}>Rs {product.price}</span>
-
-            {product.oldPrice && (
-              <span className={styles.oldPrice}>Rs {product.oldPrice}</span>
-            )}
-          </div>
-
-          {/* Add To Cart */}
-
-          <button
-            type="button"
-            className={styles.addToCart}
-            onClick={() => addToCart(product)}
-          >
-            <ShoppingBag size={16} strokeWidth={1.5} />
-
-            <span>Add to Cart</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          className={styles.cartButton}
+          disabled={(unavailable && !product.hasVariants) || cartPending}
+          aria-busy={cartPending}
+          onClick={() => void handleCart()}
+        >
+          {cartPending ? <><LoaderCircle className="button-spinner" size={15} aria-hidden="true" /> Adding…</> : product.hasVariants ? "Choose options" : outOfStock ? "Out of stock" : "Add to cart"}
+        </button>
       </div>
     </article>
   );

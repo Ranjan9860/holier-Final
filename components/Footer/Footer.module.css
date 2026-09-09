@@ -5,9 +5,9 @@
 .footer {
   width: 100%;
 
-  background: #f5f5f5;
+  background: var(--surface);
 
-  color: #6a6a6a;
+  color: var(--secondarycolor);
 }
 
 /* =========================================================
@@ -67,7 +67,7 @@
 
   margin: 0 0 32px;
 
-  color: #6a6a6a;
+  color: var(--secondarycolor);
 
   font-size: 14px;
 
@@ -93,7 +93,7 @@
 
   gap: 20px;
 
-  color: #6a6a6a;
+  color: var(--secondarycolor);
 
   font-size: 14px;
 }
@@ -113,7 +113,7 @@
 .footerColumn h3 {
   margin: 0;
 
-  color: #666666;
+  color: var(--foreground);
 
   font-size: 16px;
 
@@ -153,7 +153,7 @@
 }
 
 .footerColumn a {
-  color: #6a6a6a;
+  color: var(--secondarycolor);
 
   text-decoration: none;
 
@@ -183,7 +183,7 @@
 
   padding: 28px 0;
 
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--bordercolor);
 
   display: flex;
 
@@ -199,7 +199,7 @@
 ========================================================= */
 
 .copyright {
-  color: #6a6a6a;
+  color: var(--secondarycolor);
 
   font-size: 14px;
 
@@ -232,13 +232,13 @@
 
   justify-content: center;
 
-  border: 1px solid #eeeeee;
+  border: 1px solid var(--bordercolor);
 
   border-radius: 50%;
 
-  color: #6a6a6a;
+  color: var(--secondarycolor);
 
-  background: #f8f8f8;
+  background: var(--surface);
 
   text-decoration: none;
 

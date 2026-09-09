@@ -1,0 +1,170 @@
+.catalog {
+  padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(4rem, 8vw, 6rem);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--bordercolor);
+}
+
+.header h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.description {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--secondarycolor);
+}
+
+.count {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--secondarycolor);
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.content {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: start;
+  padding-top: 2rem;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.25rem;
+  position: sticky;
+  top: 7rem;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.controls input,
+.controls select {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: none;
+  border-bottom: 1px solid var(--bordercolor);
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: inherit;
+}
+
+.controls input:focus,
+.controls select:focus {
+  outline: none;
+  border-bottom-color: var(--foreground);
+}
+
+.searchField input {
+  min-width: 0;
+}
+
+.priceInputs {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.priceInputs input {
+  min-width: 0;
+}
+
+.apply {
+  padding: 0.55rem 1.4rem;
+  border: 1px solid var(--foreground);
+  background: var(--foreground);
+  color: var(--background);
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.reset {
+  text-align: center;
+  font-size: 12px;
+  color: var(--secondarycolor);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* =========================================================
+   EMPTY + PAGINATION
+========================================================= */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: clamp(3rem, 10vw, 6rem) 1rem;
+  text-align: center;
+}
+
+.empty h2 {
+  font-size: 26px;
+}
+
+.empty p {
+  margin: 0;
+  color: var(--secondarycolor);
+}
+
+.emptyAction {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  border: 1px solid var(--foreground);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--bordercolor);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.pagination a:hover {
+  color: var(--primarycolor);
+}
+
+@media (max-width: 800px) {
+  .content {
+    display: block;
+  }
+
+  .controls {
+    position: static;
+    margin-bottom: 2.5rem;
+  }
+}

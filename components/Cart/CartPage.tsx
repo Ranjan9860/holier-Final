@@ -2,39 +2,49 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { LoaderCircle, Minus, Plus, Trash2 } from "lucide-react";
 
 import { useCart } from "@/context/CartContext";
+import PageLoader from "@/components/PageLoader";
+import EmptyCollection from "./EmptyCollection";
 
 import styles from "./CartPage.module.css";
 
 export default function CartPage() {
+  const [pending, setPending] = useState<string | null>(null);
   const {
     cart,
     cartCount,
     cartTotal,
+    summary,
+    error,
+    loading,
     updateQuantity,
     removeFromCart,
     clearCart,
   } = useCart();
 
+  const run = async (key: string, action: () => Promise<void>) => {
+    setPending(key);
+    try { await action(); } finally { setPending(null); }
+  };
+
   /* =====================================================
      EMPTY CART
   ===================================================== */
 
+  if (loading && cart.length === 0) {
+    return <PageLoader />;
+  }
+
   if (cart.length === 0) {
     return (
-      <main className={styles.emptyCart}>
-        <div className={styles.emptyContent}>
-          <h1>Your Cart is Empty</h1>
-
-          <p>Looks like you haven't added anything to your cart yet.</p>
-
-          <Link href="/shop" className={styles.shopButton}>
-            Continue Shopping
-          </Link>
-        </div>
-      </main>
+      <EmptyCollection
+        title="Your Cart is Empty"
+        description="Looks like you haven't added anything to your cart yet."
+        error={error}
+      />
     );
   }
 
@@ -46,18 +56,20 @@ export default function CartPage() {
         ================================================= */}
 
         <div className={styles.pageHeader}>
-          <h1>Shopping Cart</h1>
+          <div>
+            <h1>Shopping Cart</h1>
+            <p>{cartCount} {cartCount === 1 ? "item" : "items"} in your cart</p>
+            {error && <p role="alert">{error}</p>}
+          </div>
 
-          <p>
-            {cartCount} {cartCount === 1 ? "item" : "items"} in your cart
-          </p>
         </div>
 
         {/* =================================================
             CART TABLE
         ================================================= */}
 
-        <div className={styles.cartTableWrapper}>
+        <div className={styles.cartContent}>
+          <div className={styles.cartTableWrapper}>
           <table className={styles.cartTable}>
             {/* =================================================
                 TABLE HEADER
@@ -66,7 +78,6 @@ export default function CartPage() {
             <thead>
               <tr>
                 <th>Product</th>
-                <th>Product ID</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Subtotal</th>
@@ -89,7 +100,7 @@ export default function CartPage() {
                     <div className={styles.productCell}>
                       <div className={styles.productImage}>
                         <Image
-                          src={item.images[0]}
+                          src={item.images[0] || "/image/products/placeholder.svg"}
                           alt={item.title}
                           fill
                           sizes="100px"
@@ -97,7 +108,7 @@ export default function CartPage() {
                       </div>
 
                       <div className={styles.productInfo}>
-                        <h3>{item.title}</h3>
+                        <Link href={`/product/${item.productId}`}><h3>{item.title}</h3></Link>
 
                         {item.selectedColor && (
                           <span>Color: {item.selectedColor}</span>
@@ -106,23 +117,21 @@ export default function CartPage() {
                         {item.selectedSize && (
                           <span>Size: {item.selectedSize}</span>
                         )}
+
+                        {typeof item.promotion === "object" && item.promotion !== null && "name" in item.promotion && (
+                          <span>{String(item.promotion.name)}</span>
+                        )}
+
+                        {!item.inStock && <span>Currently unavailable</span>}
                       </div>
                     </div>
-                  </td>
-
-                  {/* PRODUCT ID */}
-
-                  <td>
-                    <span className={styles.productId}>
-                      HL-{String(item.id).padStart(3, "0")}
-                    </span>
                   </td>
 
                   {/* PRICE */}
 
                   <td>
                     <span className={styles.price}>
-                      Rs. {item.price.toLocaleString()}
+                      Rs. {item.unitPrice.toLocaleString()}
                     </span>
                   </td>
 
@@ -133,16 +142,10 @@ export default function CartPage() {
                       <button
                         type="button"
                         aria-label="Decrease quantity"
-                        onClick={() =>
-                          updateQuantity(
-                            item.id,
-                            item.quantity - 1,
-                            item.selectedSize,
-                            item.selectedColor,
-                          )
-                        }
+                        disabled={pending !== null}
+                        onClick={() => void run(`decrease-${item.id}`, () => updateQuantity(item.id, item.quantity - 1))}
                       >
-                        <Minus size={14} />
+                        {pending === `decrease-${item.id}` ? <LoaderCircle className="button-spinner" size={14} /> : <Minus size={14} />}
                       </button>
 
                       <span>{item.quantity}</span>
@@ -150,16 +153,10 @@ export default function CartPage() {
                       <button
                         type="button"
                         aria-label="Increase quantity"
-                        onClick={() =>
-                          updateQuantity(
-                            item.id,
-                            item.quantity + 1,
-                            item.selectedSize,
-                            item.selectedColor,
-                          )
-                        }
+                        disabled={pending !== null}
+                        onClick={() => void run(`increase-${item.id}`, () => updateQuantity(item.id, item.quantity + 1))}
                       >
-                        <Plus size={14} />
+                        {pending === `increase-${item.id}` ? <LoaderCircle className="button-spinner" size={14} /> : <Plus size={14} />}
                       </button>
                     </div>
                   </td>
@@ -168,7 +165,7 @@ export default function CartPage() {
 
                   <td>
                     <span className={styles.subtotal}>
-                      Rs. {(item.price * item.quantity).toLocaleString()}
+                      Rs. {item.lineTotal.toLocaleString()}
                     </span>
                   </td>
 
@@ -179,54 +176,35 @@ export default function CartPage() {
                       type="button"
                       className={styles.deleteButton}
                       aria-label={`Remove ${item.title}`}
-                      onClick={() =>
-                        removeFromCart(
-                          item.id,
-                          item.selectedSize,
-                          item.selectedColor,
-                        )
-                      }
+                      disabled={pending !== null}
+                      onClick={() => void run(`remove-${item.id}`, () => removeFromCart(item.id))}
                     >
-                      <Trash2 size={18} strokeWidth={1.5} />
+                      {pending === `remove-${item.id}` ? <LoaderCircle className="button-spinner" size={18} /> : <Trash2 size={18} strokeWidth={1.5} />}
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* =================================================
-            COUPON
-        ================================================= */}
-
-        <div className={styles.couponSection}>
-          <div className={styles.couponBox}>
-            <input
-              type="text"
-              placeholder="Enter coupon code"
-              aria-label="Coupon code"
-            />
-
-            <button type="button">Apply Coupon</button>
           </div>
-
-          <button
-            type="button"
-            className={styles.clearCartButton}
-            onClick={clearCart}
-          >
-            Clear Cart
-          </button>
-        </div>
 
         {/* =================================================
             CART TOTALS
         ================================================= */}
 
-        <div className={styles.totalsWrapper}>
-          <div className={styles.cartTotals}>
-            <h2>Cart Totals</h2>
+          <div className={styles.totalsWrapper}>
+            <div className={styles.cartTotals}>
+            <div className={styles.totalsHeader}>
+              <h2>Cart Totals</h2>
+              <button
+                type="button"
+                className={styles.clearCartButton}
+                disabled={pending !== null}
+                onClick={() => void run("clear", clearCart)}
+              >
+                {pending === "clear" ? <><LoaderCircle className="button-spinner" size={15} /> Clearing…</> : "Clear Cart"}
+              </button>
+            </div>
 
             <table>
               <tbody>
@@ -235,8 +213,16 @@ export default function CartPage() {
                 <tr>
                   <td>Subtotal</td>
 
-                  <td>Rs. {cartTotal.toLocaleString()}</td>
+                  <td>Rs. {summary.subtotal.toLocaleString()}</td>
                 </tr>
+
+                {summary.discountAmount > 0 && (
+                  <tr><td>Discount</td><td>- Rs. {summary.discountAmount.toLocaleString()}</td></tr>
+                )}
+
+                <tr><td>Tax</td><td>Rs. {summary.taxAmount.toLocaleString()}</td></tr>
+
+                <tr><td>Shipping</td><td>Calculated at checkout</td></tr>
 
                 {/* TOTAL */}
 
@@ -253,6 +239,7 @@ export default function CartPage() {
             <Link href="/checkout" className={styles.checkoutButton}>
               Proceed to Checkout
             </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -1,867 +1,149 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
-
-import {
-  Share2,
-  Download,
-  Trash2,
-  CheckSquare,
-  Square,
-  X,
-  Search,
-  ShoppingBag,
-} from "lucide-react";
-
-import { defaultBillingInfo, orders } from "@/data/account";
-import { products } from "@/data/products";
-import { useSearchParams } from "next/navigation";
-
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { toast } from "react-toastify";
+import { useAuth } from "@/context/AuthContext";
+import { storefrontRequest, StorefrontError } from "@/lib/api/client";
+import { maskPhone } from "@/lib/format";
+import AddressModal, { type Address, type ShippingLocation } from "./AddressModal";
 import styles from "./AccountDashboard.module.css";
-import { useWishlist } from "@/context/WishlistContext";
 
-export default function AccountDashboard() {
-  /* =========================================
-     TAB STATE
-  ========================================= */
+function maskPhoneInput(event: ChangeEvent<HTMLInputElement>) {
+  event.target.value = maskPhone(event.target.value);
+}
 
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const { wishlist, toggleWishlist } = useWishlist();
+type Order = { id: string; order_number: string; order_status: string; delivery_status?: string; order_date: string; total_amount: number };
+type Tab = "profile" | "addresses" | "orders" | "security";
 
-  const searchParams = useSearchParams();
-  const wishlistProducts = products.filter((product) =>
-    wishlist.includes(product.id),
-  );
+export default function AccountDashboard({ initialTab = "profile" }: { initialTab?: Tab }) {
+  const { customer, loading, notice, refreshCustomer } = useAuth();
+  const router = useRouter();
+  const [tab, setTab] = useState<Tab>(initialTab);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [locations, setLocations] = useState<ShippingLocation[]>([]);
+  const [editingAddress, setEditingAddress] = useState<Address | "new" | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [pending, setPending] = useState(false);
+  const fieldError = (name: string) => errors[name]?.[0];
+
+  const loadAddresses = useCallback(async () => {
+    const payload = await storefrontRequest<{ data: Address[] }>("customer/address");
+    setAddresses(payload.data);
+  }, []);
+  const loadOrders = useCallback(async (nextPage = 1) => {
+    const payload = await storefrontRequest<{ data: Order[]; meta?: { current_page?: number; last_page?: number } }>(`order?page=${nextPage}`);
+    setOrders(payload.data); setPage(payload.meta?.current_page || nextPage); setLastPage(payload.meta?.last_page || nextPage);
+  }, []);
+  const loadLocations = useCallback(async () => {
+    const payload = await storefrontRequest<{ data: ShippingLocation[] }>("shipping/addresses");
+    setLocations(payload.data);
+  }, []);
+  useEffect(() => {
+    if (!customer) return;
+    // Account data is loaded only for an authenticated customer.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    Promise.all([loadAddresses(), loadOrders(), loadLocations()]).catch((reason) => toast.error(reason instanceof Error ? reason.message : "Unable to load account."));
+  }, [customer, loadAddresses, loadLocations, loadOrders]);
 
   useEffect(() => {
-    const tab = searchParams.get("tab");
+    if (!loading && !customer) router.replace("/auth");
+  }, [customer, loading, router]);
 
-    if (tab === "wishlist") {
-      setActiveTab("wishlist");
-    }
-  }, [searchParams]);
+  if (loading) return <main className={styles.dashboard}><div className="container"><p>Loading account…</p></div></main>;
+  if (!customer) return null;
 
-  /* =========================================
-     BILLING EDIT STATE
-  ========================================= */
-
-  const [isEditing, setIsEditing] = useState(false);
-
-  /* =========================================
-     BILLING INFORMATION
-  ========================================= */
-
-  const [billingInfo, setBillingInfo] = useState(defaultBillingInfo);
-
-  /* =========================================
-     WISHLIST SELECTED PRODUCTS
-  ========================================= */
-
-  const [selectedWishlist, setSelectedWishlist] = useState<number[]>([]);
-
-  /* =========================================
-     HANDLE INPUT
-  ========================================= */
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-
-    setBillingInfo((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+  const fail = (reason: unknown, fallback: string) => {
+    if (reason instanceof StorefrontError) setErrors(reason.errors);
+    toast.error(reason instanceof Error ? reason.message : fallback);
   };
-
-  /* =========================================
-     UPDATE BILLING
-  ========================================= */
-
-  const handleUpdate = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    setIsEditing(false);
-
-    console.log("Updated Billing Information:", billingInfo);
+  const submitProfile = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setPending(true); setErrors({});
+    const form = new FormData(event.currentTarget);
+    const profile = Object.fromEntries([...form].filter(([, value]) => value !== ""));
+    try {
+      await storefrontRequest("customer/profile", { method: "POST", body: JSON.stringify(profile) });
+      await refreshCustomer(); toast.success("Profile updated.");
+    } catch (reason) { fail(reason, "Profile update failed."); }
+    finally { setPending(false); }
   };
-
-  /* =========================================
-     CHANGE TAB
-  ========================================= */
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setIsEditing(false);
+  const changePassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setPending(true); setErrors({});
+    const form = Object.fromEntries(new FormData(event.currentTarget));
+    try {
+      const result = await storefrontRequest<{ message: string }>("customer/password/change", { method: "POST", body: JSON.stringify(form) });
+      toast.success(result.message); event.currentTarget.reset();
+    } catch (reason) { fail(reason, "Password change failed."); }
+    finally { setPending(false); }
   };
-
-  /* =========================================
-     WISHLIST SELECT / DESELECT
-  ========================================= */
-
-  const toggleWishlistSelection = (id: number) => {
-    setSelectedWishlist((previous) => {
-      if (previous.includes(id)) {
-        return previous.filter((productId) => productId !== id);
-      }
-
-      return [...previous, id];
-    });
+  const deleteAccount = async () => {
+    if (!confirm("Permanently delete your account? This cannot be undone.")) return;
+    setPending(true);
+    try {
+      await storefrontRequest("customer/profile", { method: "DELETE" });
+      router.push("/auth");
+    } catch (reason) { fail(reason, "Account deletion failed."); setPending(false); }
   };
+  return <main className={styles.dashboard}>
+    <div className="container">
+      <header className={styles.header}>
+        <h1>My Account</h1>
+        <div className={styles.headerMeta}><span>{customer.name} · {customer.email}</span></div>
+      </header>
+      <nav className={styles.nav} aria-label="Account sections">
+        {(["profile", "addresses", "orders", "security"] as Tab[]).map((item) => <button type="button" key={item} className={`${styles.navButton} ${tab === item ? styles.activeTab : ""}`} onClick={() => { setTab(item); setErrors({}); }} aria-pressed={tab === item}>{item}</button>)}
+      </nav>
+      {notice && <p role="alert" className={styles.notice}>{notice}</p>}
 
-  /* =========================================
-     SELECT ALL
-  ========================================= */
+      {tab === "profile" && <section className={styles.section}><h2>Profile</h2><form onSubmit={submitProfile} noValidate className={styles.formGrid}>
+        <label className={styles.formGroup}>Name<input name="name" defaultValue={customer.name} className={fieldError("name") ? styles.invalid : undefined} />{fieldError("name") && <span className={styles.errorText}>{fieldError("name")}</span>}</label>
+        <label className={styles.formGroup}>Email<input name="email" type="email" defaultValue={customer.email} className={fieldError("email") ? styles.invalid : undefined} />{fieldError("email") && <span className={styles.errorText}>{fieldError("email")}</span>}</label>
+        <label className={styles.formGroup}>Phone<input name="phone" defaultValue={customer.phone || ""} inputMode="numeric" maxLength={10} onChange={maskPhoneInput} className={fieldError("phone") ? styles.invalid : undefined} />{fieldError("phone") && <span className={styles.errorText}>{fieldError("phone")}</span>}</label>
+        <label className={styles.formGroup}>Gender<select name="gender" defaultValue={customer.gender || ""} className={fieldError("gender") ? styles.invalid : undefined}><option value="">Not specified</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select>{fieldError("gender") && <span className={styles.errorText}>{fieldError("gender")}</span>}</label>
+        <div className={`${styles.actions} ${styles.fullWidth}`}><button className={styles.primaryButton} disabled={pending}>Save profile</button></div>
+      </form></section>}
 
-  const handleSelectAllWishlist = () => {
-    if (selectedWishlist.length === wishlistProducts.length) {
-      setSelectedWishlist([]);
-    } else {
-      setSelectedWishlist(wishlistProducts.map((product) => product.id));
-    }
-  };
+      {tab === "addresses" && <section className={styles.section}>
+        <div className={styles.sectionHeading}><h2>Addresses</h2><button type="button" className={styles.secondaryButton} onClick={() => setEditingAddress("new")}>Add address</button></div>
+        {addresses.length === 0 ? <p className={styles.emptyState}>No saved addresses.</p> : <div className={styles.addressGrid}>{addresses.map((address) => <article key={address.id} className={styles.addressCard}>
+          <h3>{address.label || "Address"}</h3><p>{address.name} · {address.phone}</p><p>{address.addresses?.[0]?.address}{address.addresses?.[0]?.landmark ? `, ${address.addresses[0].landmark}` : ""}</p>
+          <div className={styles.addressBadges}>{address.billing_default && <span className={styles.badge}>Default billing</span>}{address.shipping_default && <span className={styles.badge}>Default shipping</span>}</div>
+          <div className={styles.addressActions}>
+            <button type="button" onClick={() => setEditingAddress(address)}>Edit</button>
+            <button type="button" onClick={async () => { await storefrontRequest(`customer/address/${address.id}`, { method: "DELETE" }); await loadAddresses(); }}>Delete</button>
+          </div>
+        </article>)}</div>}
+        {editingAddress && <AddressModal editing={editingAddress} locations={locations} defaultName={customer.name} defaultPhone={customer.phone || ""} onClose={() => setEditingAddress(null)} onSaved={loadAddresses} />}
+      </section>}
 
-  /* =========================================
-     DELETE SELECTED
-  ========================================= */
+      {tab === "orders" && <section className={styles.section}><h2>Orders</h2>
+        {orders.length === 0 ? <p className={styles.emptyState}>No orders yet.</p> : <div className={styles.orderList}>{orders.map((order) => <div key={order.id} className={styles.orderRow}>
+          <Link href={`/order/${order.id}`}>{order.order_number}</Link>
+          <div className={styles.orderMeta}><span>{order.order_status} · {order.delivery_status || "pending"}</span><time>{order.order_date}</time><span className={styles.orderTotal}>Rs. {Number(order.total_amount).toLocaleString()}</span></div>
+        </div>)}</div>}
+        {lastPage > 1 && <div className={styles.pagination}>
+          <button type="button" className={styles.secondaryButton} disabled={page <= 1} onClick={() => loadOrders(page - 1)}>Previous</button>
+          <span>Page {page} of {lastPage}</span>
+          <button type="button" className={styles.secondaryButton} disabled={page >= lastPage} onClick={() => loadOrders(page + 1)}>Next</button>
+        </div>}
+      </section>}
 
-  const handleDeleteSelectedWishlist = () => {
-    selectedWishlist.forEach((id) => {
-      if (wishlist.includes(id)) {
-        toggleWishlist(id);
-      }
-    });
-
-    setSelectedWishlist([]);
-  };
-
-  /* =========================================
-     CLEAR SELECTION
-  ========================================= */
-
-  const handleClearWishlistSelection = () => {
-    setSelectedWishlist([]);
-  };
-
-  /* =========================================
-     SHARE WISHLIST
-  ========================================= */
-
-  const handleShareWishlist = () => {
-    console.log("Share wishlist");
-  };
-
-  return (
-    <section className={styles.dashboardSection}>
-      <div className={styles.dashboardContainer}>
-        {/* =========================================
-            GREETING
-        ========================================= */}
-
-        <div className={styles.greeting}>
-          <h1>Hello, Ranjan</h1>
-
-          <p>Welcome to your dashboard</p>
+      {tab === "security" && <section className={styles.section}><h2>Security</h2>
+        <form onSubmit={changePassword} noValidate className={styles.formGrid}>
+          <label className={styles.formGroup}>Current password<input type="password" name="current_password" className={fieldError("current_password") ? styles.invalid : undefined} />{fieldError("current_password") && <span className={styles.errorText}>{fieldError("current_password")}</span>}</label>
+          <label className={styles.formGroup}>New password<input type="password" name="new_password" className={fieldError("new_password") ? styles.invalid : undefined} />{fieldError("new_password") && <span className={styles.errorText}>{fieldError("new_password")}</span>}</label>
+          <label className={styles.formGroup}>Confirm new password<input type="password" name="new_password_confirmation" className={fieldError("new_password_confirmation") ? styles.invalid : undefined} />{fieldError("new_password_confirmation") && <span className={styles.errorText}>{fieldError("new_password_confirmation")}</span>}</label>
+          <div className={`${styles.actions} ${styles.fullWidth}`}><button className={styles.primaryButton} disabled={pending}>Change password</button></div>
+        </form>
+        <div className={styles.dangerZone}>
+          <div><h2>Delete account</h2><p>Permanently remove your account and all its data.</p></div>
+          <button type="button" className={`${styles.primaryButton} ${styles.dangerButton}`} disabled={pending} onClick={deleteAccount}>Delete account</button>
         </div>
-
-        {/* =========================================
-            DASHBOARD NAVIGATION
-        ========================================= */}
-
-        <nav className={styles.dashboardNav}>
-          <button
-            type="button"
-            className={activeTab === "dashboard" ? styles.activeTab : ""}
-            onClick={() => handleTabChange("dashboard")}
-          >
-            My Dashboard
-          </button>
-
-          <button
-            type="button"
-            className={activeTab === "orders" ? styles.activeTab : ""}
-            onClick={() => handleTabChange("orders")}
-          >
-            My Orders
-          </button>
-
-          <button
-            type="button"
-            className={activeTab === "wishlist" ? styles.activeTab : ""}
-            onClick={() => handleTabChange("wishlist")}
-          >
-            Wishlist
-          </button>
-
-          <button
-            type="button"
-            className={activeTab === "password" ? styles.activeTab : ""}
-            onClick={() => handleTabChange("password")}
-          >
-            Passwords
-          </button>
-
-          <button
-            type="button"
-            className={activeTab === "logout" ? styles.activeTab : ""}
-            onClick={() => handleTabChange("logout")}
-          >
-            Logout
-          </button>
-        </nav>
-
-        {/* =========================================
-            DASHBOARD CONTENT
-        ========================================= */}
-
-        <div className={styles.dashboardContent}>
-          {/* =====================================================
-              MY DASHBOARD
-          ===================================================== */}
-
-          {activeTab === "dashboard" && (
-            <div>
-              <div className={styles.sectionHeading}>
-                <h2>My Dashboard</h2>
-              </div>
-
-              {/* BILLING INFORMATION */}
-
-              <div className={styles.billingSection}>
-                <div className={styles.billingHeading}>
-                  <h3>Billing Information</h3>
-                </div>
-
-                {/* VIEW BILLING */}
-
-                {!isEditing && (
-                  <>
-                    <div className={styles.billingGrid}>
-                      <div className={styles.infoItem}>
-                        <span>Full Name</span>
-
-                        <p>{billingInfo.fullName}</p>
-                      </div>
-
-                      <div className={styles.infoItem}>
-                        <span>Email Address</span>
-
-                        <p>{billingInfo.email}</p>
-                      </div>
-
-                      <div className={styles.infoItem}>
-                        <span>Phone Number</span>
-
-                        <p>{billingInfo.phone}</p>
-                      </div>
-
-                      <div className={styles.infoItem}>
-                        <span>Address</span>
-
-                        <p>{billingInfo.address}</p>
-                      </div>
-
-                      <div className={styles.infoItem}>
-                        <span>Gender</span>
-
-                        <p>{billingInfo.gender}</p>
-                      </div>
-
-                      <div className={styles.infoItem}>
-                        <span>City</span>
-
-                        <p>{billingInfo.city}</p>
-                      </div>
-
-                      <div className={styles.infoItem}>
-                        <span>Region</span>
-
-                        <p>{billingInfo.region}</p>
-                      </div>
-
-                      <div className={styles.infoItem}>
-                        <span>Country</span>
-
-                        <p>{billingInfo.country}</p>
-                      </div>
-
-                      <div className={styles.infoItem}>
-                        <span>Postal Code</span>
-
-                        <p>{billingInfo.postalCode}</p>
-                      </div>
-                    </div>
-
-                    <div className={styles.bottomLine} />
-
-                    <div className={styles.editButtonWrapper}>
-                      <button
-                        type="button"
-                        className={styles.editButton}
-                        onClick={() => setIsEditing(true)}
-                      >
-                        Edit Billing Information
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {/* EDIT BILLING */}
-
-                {isEditing && (
-                  <form className={styles.billingForm} onSubmit={handleUpdate}>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="fullName">Full Name</label>
-
-                      <input
-                        id="fullName"
-                        name="fullName"
-                        type="text"
-                        value={billingInfo.fullName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="email">Email Address</label>
-
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={billingInfo.email}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="phone">Phone Number</label>
-
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="text"
-                        value={billingInfo.phone}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="address">Address</label>
-
-                      <input
-                        id="address"
-                        name="address"
-                        type="text"
-                        value={billingInfo.address}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="gender">Gender</label>
-
-                      <select
-                        id="gender"
-                        name="gender"
-                        value={billingInfo.gender}
-                        onChange={handleChange}
-                        required
-                      >
-                        <option value="">Select Gender</option>
-
-                        <option value="Male">Male</option>
-
-                        <option value="Female">Female</option>
-
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="city">City</label>
-
-                      <select
-                        id="city"
-                        name="city"
-                        value={billingInfo.city}
-                        onChange={handleChange}
-                        required
-                      >
-                        <option value="">Select City</option>
-
-                        <option value="Kathmandu">Kathmandu</option>
-
-                        <option value="Bhaktapur">Bhaktapur</option>
-
-                        <option value="Lalitpur">Lalitpur</option>
-
-                        <option value="Pokhara">Pokhara</option>
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="region">Region</label>
-
-                      <input
-                        id="region"
-                        name="region"
-                        type="text"
-                        value={billingInfo.region}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="country">Country</label>
-
-                      <select
-                        id="country"
-                        name="country"
-                        value={billingInfo.country}
-                        onChange={handleChange}
-                        required
-                      >
-                        <option value="">Select Country</option>
-
-                        <option value="Nepal">Nepal</option>
-
-                        <option value="India">India</option>
-
-                        <option value="United States">United States</option>
-
-                        <option value="United Kingdom">United Kingdom</option>
-                      </select>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="postalCode">Postal Code</label>
-
-                      <input
-                        id="postalCode"
-                        name="postalCode"
-                        type="text"
-                        value={billingInfo.postalCode}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.formActions}>
-                      <button
-                        type="button"
-                        className={styles.cancelButton}
-                        onClick={() => setIsEditing(false)}
-                      >
-                        Cancel
-                      </button>
-
-                      <button type="submit" className={styles.updateButton}>
-                        Update
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* =====================================================
-              MY ORDERS
-          ===================================================== */}
-
-          {activeTab === "orders" && (
-            <div className={styles.ordersSection}>
-              <div className={styles.sectionHeading}>
-                <h2>My Orders</h2>
-
-                <p>Here you can view and manage all of your recent orders.</p>
-              </div>
-
-              <div className={styles.ordersTableWrapper}>
-                <table className={styles.ordersTable}>
-                  <thead>
-                    <tr>
-                      <th>Order ID</th>
-                      <th>Ordered On</th>
-                      <th>Total Amount</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {orders.map((order) => (
-                      <tr key={order.id}>
-                        <td>
-                          <div className={styles.orderProduct}>
-                            <div className={styles.orderImage}>
-                              <Image
-                                src={order.image}
-                                alt={order.productName}
-                                width={80}
-                                height={90}
-                              />
-                            </div>
-
-                            <div className={styles.orderDetails}>
-                              <span>{order.id}</span>
-
-                              <h3>{order.productName}</h3>
-                            </div>
-                          </div>
-                        </td>
-
-                        <td>
-                          <span className={styles.orderDate}>
-                            {order.orderedOn}
-                          </span>
-                        </td>
-
-                        <td>
-                          <span className={styles.orderTotal}>
-                            {order.total}
-                          </span>
-                        </td>
-
-                        <td>
-                          <span
-                            className={`${styles.orderStatus} ${
-                              order.status === "Delivered"
-                                ? styles.delivered
-                                : order.status === "Processing"
-                                  ? styles.processing
-                                  : styles.shipped
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                        </td>
-
-                        <td>
-                          <div className={styles.orderActions}>
-                            <button
-                              type="button"
-                              className={styles.orderActionButton}
-                              title="Share Order"
-                              onClick={() => console.log(`Share ${order.id}`)}
-                            >
-                              <Share2 size={17} strokeWidth={1.8} />
-                            </button>
-
-                            <button
-                              type="button"
-                              className={styles.orderActionButton}
-                              title="Download Invoice"
-                              onClick={() =>
-                                console.log(`Download ${order.id}`)
-                              }
-                            >
-                              <Download size={17} strokeWidth={1.8} />
-                            </button>
-
-                            <button
-                              type="button"
-                              className={`${styles.orderActionButton} ${styles.deleteAction}`}
-                              title="Delete Order"
-                              onClick={() => console.log(`Delete ${order.id}`)}
-                            >
-                              <Trash2 size={17} strokeWidth={1.8} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* =====================================================
-              WISHLIST
-          ===================================================== */}
-
-          {activeTab === "wishlist" && (
-            <div className={styles.wishlistSection}>
-              {/* WISHLIST HEADER */}
-
-              <div className={styles.wishlistHeader}>
-                <div className={styles.sectionHeading}>
-                  <h2>Wishlist</h2>
-
-                  <p>Products you have saved for later.</p>
-                </div>
-
-                {/* SHARE */}
-
-                <div className={styles.shareWishlist}>
-                  <span>Share:</span>
-
-                  <button
-                    type="button"
-                    aria-label="Facebook"
-                    onClick={() => console.log("Share on Facebook")}
-                  >
-                    f
-                  </button>
-
-                  <button
-                    type="button"
-                    aria-label="Instagram"
-                    onClick={() => console.log("Share on Instagram")}
-                  >
-                    ◎
-                  </button>
-
-                  <button
-                    type="button"
-                    aria-label="WhatsApp"
-                    onClick={() => console.log("Share on WhatsApp")}
-                  >
-                    ◔
-                  </button>
-
-                  <button
-                    type="button"
-                    aria-label="Share wishlist"
-                    onClick={handleShareWishlist}
-                  >
-                    <Share2 size={17} strokeWidth={1.7} />
-                  </button>
-                </div>
-              </div>
-
-              {/* WISHLIST ACTION BAR */}
-
-              {selectedWishlist.length > 0 && (
-                <div className={styles.wishlistActionsBar}>
-                  <span className={styles.selectedCount}>
-                    {selectedWishlist.length}{" "}
-                    {selectedWishlist.length === 1 ? "item" : "items"} selected
-                  </span>
-
-                  <div className={styles.wishlistActionButtons}>
-                    {/* SELECT ALL */}
-
-                    <button type="button" onClick={handleSelectAllWishlist}>
-                      <CheckSquare size={16} strokeWidth={1.7} />
-
-                      <span>
-                        {selectedWishlist.length === wishlistProducts.length
-                          ? "Deselect All"
-                          : "Select All"}
-                      </span>
-                    </button>
-
-                    {/* DELETE */}
-
-                    <button
-                      type="button"
-                      className={styles.deleteWishlistButton}
-                      onClick={handleDeleteSelectedWishlist}
-                    >
-                      <Trash2 size={16} strokeWidth={1.7} />
-
-                      <span>Delete</span>
-                    </button>
-
-                    {/* CLEAR */}
-
-                    <button
-                      type="button"
-                      onClick={handleClearWishlistSelection}
-                    >
-                      <X size={16} strokeWidth={1.7} />
-
-                      <span>Clear</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* WISHLIST GRID */}
-
-              <div className={styles.wishlistGrid}>
-                {wishlistProducts.map((product) => {
-                  const isSelected = selectedWishlist.includes(product.id);
-
-                  return (
-                    <article
-                      key={product.id}
-                      className={`${styles.productCard} ${
-                        isSelected ? styles.selectedProduct : ""
-                      }`}
-                    >
-                      {/* PRODUCT IMAGE */}
-
-                      <div className={styles.imageWrapper}>
-                        <Image
-                          src={product.image}
-                          alt={product.title}
-                          width={800}
-                          height={600}
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                          className={styles.productImage}
-                        />
-
-                        {/* CHECKBOX */}
-
-                        <button
-                          type="button"
-                          className={styles.wishlistCheckbox}
-                          aria-label={
-                            isSelected ? "Deselect product" : "Select product"
-                          }
-                          onClick={() => toggleWishlistSelection(product.id)}
-                        >
-                          {isSelected ? (
-                            <CheckSquare size={20} strokeWidth={1.7} />
-                          ) : (
-                            <Square size={20} strokeWidth={1.7} />
-                          )}
-                        </button>
-                      </div>
-
-                      {/* PRODUCT INFO */}
-
-                      <div className={styles.productInfo}>
-                        <h3 className={styles.productTitle}>{product.title}</h3>
-
-                        {/* COLORS */}
-
-                        <div className={styles.colors}>
-                          {product.colors.map((color, index) => (
-                            <span
-                              key={`${product.id}-color-${index}`}
-                              className={styles.color}
-                              style={{
-                                backgroundColor: color,
-                              }}
-                            />
-                          ))}
-                        </div>
-
-                        {/* SIZES */}
-
-                        <p className={styles.sizes}>
-                          Size: {product.sizes.join(" | ")}
-                        </p>
-
-                        {/* PRICE */}
-
-                        <div className={styles.priceArea}>
-                          <div className={styles.priceWrapper}>
-                            <span className={styles.price}>
-                              Rs {product.price}
-                            </span>
-
-                            {product.oldPrice && (
-                              <span className={styles.oldPrice}>
-                                Rs {product.oldPrice}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* ADD TO CART */}
-
-                          <button
-                            type="button"
-                            className={styles.addToCart}
-                            onClick={() =>
-                              console.log("Add to cart", product.id)
-                            }
-                          >
-                            <ShoppingBag size={16} strokeWidth={1.5} />
-
-                            <span>Add to Cart</span>
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* =====================================================
-              ADDRESSES
-          ===================================================== */}
-
-          {activeTab === "password" && (
-            <div>
-              <div className={styles.sectionHeading}>
-                <h2>Passwords</h2>
-              </div>
-
-              {/* BILLING INFORMATION */}
-
-              <div className={styles.billingSection}>
-                <div className={styles.billingHeading}>
-                  <h3>Change Password</h3>
-                </div>
-                <>
-                  <form className={styles.billingForm} onSubmit={handleUpdate}>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="fullName">Old Password</label>
-
-                      <input type="text" placeholder="Old Password" required />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="email">New Password</label>
-
-                      <input type="text" placeholder="New Password" required />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label htmlFor="phone">Confirm Password</label>
-
-                      <input
-                        type="text"
-                        placeholder="Confirm Password"
-                        required
-                      />
-                    </div>
-
-                    <button type="submit" className={styles.updateButton}>
-                      Update
-                    </button>
-                  </form>
-                </>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "logout" && (
-            <div>
-              <div className={styles.sectionHeading}>
-                <h2>Passwords</h2>
-              </div>
-
-              {/* BILLING INFORMATION */}
-
-              <div className={styles.billingSection}>
-                <div className={styles.logoutAction}>
-                  <h3>Are you Sure you want to Logout?</h3>
-
-                  <div className={styles.logoutButtons}>
-                    <button type="button">Cancel</button>
-                    <button type="button">Logout</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+      </section>}
+    </div>
+  </main>;
 }

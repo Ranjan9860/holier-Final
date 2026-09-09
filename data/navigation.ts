@@ -13,11 +13,11 @@ export const navigationItems: NavigationItem[] = [
     href: "/new-arrivals",
   },
   {
-    name: "Sale",
-    href: "/sale",
+    name: "Categories",
+    href: "/categories",
   },
   {
-    name: "Collections",
-    href: "/collections",
+    name: "Sale",
+    href: "/sale",
   },
 ];

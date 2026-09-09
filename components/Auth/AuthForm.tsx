@@ -2,13 +2,19 @@
 
 import { useState } from "react";
 import { Eye, EyeOff, Mail } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebookF } from "@fortawesome/free-brands-svg-icons";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { StorefrontError } from "@/lib/api/client";
 
 import styles from "./AuthForm.module.css";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const router = useRouter();
+  const { login, register, forgotPassword, socialLogin } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -30,22 +36,32 @@ export default function AuthForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setMessage("");
+    setErrors({});
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
+      setErrors({ confirmPassword: ["Passwords do not match."] });
       return;
     }
+    setPending(true);
+    try {
+      if (isLogin) await login({ email: formData.email, password: formData.password });
+      else await register({ name: `${formData.firstName} ${formData.lastName}`.trim(), email: formData.email, password: formData.password });
+      router.push("/account");
+    } catch (reason) {
+      setMessage(reason instanceof Error ? reason.message : "Authentication failed.");
+      if (reason instanceof StorefrontError) setErrors(reason.errors);
+    } finally { setPending(false); }
+  };
 
-    if (isLogin) {
-      console.log("Login:", {
-        email: formData.email,
-        password: formData.password,
-      });
-    } else {
-      console.log("Signup:", formData);
-    }
+  const handleForgotPassword = async () => {
+    if (!formData.email) return setErrors({ email: ["Enter your email address first."] });
+    setPending(true);
+    try { setMessage(await forgotPassword(formData.email)); }
+    catch (reason) { setMessage(reason instanceof Error ? reason.message : "Unable to send reset link."); }
+    finally { setPending(false); }
   };
 
   const switchMode = () => {
@@ -142,7 +158,7 @@ export default function AuthForm() {
                 <button
                   type="button"
                   className={styles.forgotPassword}
-                  onClick={() => console.log("Forgot password")}
+                  onClick={handleForgotPassword}
                 >
                   Forgot Password?
                 </button>
@@ -205,20 +221,11 @@ export default function AuthForm() {
             </div>
           )}
 
-          {/* Terms - Signup only */}
-          {!isLogin && (
-            <label className={styles.terms}>
-              <input type="checkbox" required />
-
-              <span>
-                I agree to the <a href="#">Terms & Conditions</a>
-              </span>
-            </label>
-          )}
-
           {/* Submit */}
-          <button type="submit" className={styles.submitButton}>
-            {isLogin ? "Login" : "Create Account"}
+          {message && <p role="status">{message}</p>}
+          {Object.values(errors).flat().map((error) => <p role="alert" key={error}>{error}</p>)}
+          <button type="submit" className={styles.submitButton} disabled={pending}>
+            {pending ? "Please wait…" : isLogin ? "Login" : "Create Account"}
           </button>
         </form>
 
@@ -234,20 +241,12 @@ export default function AuthForm() {
           <button
             type="button"
             className={styles.googleButton}
-            onClick={() => console.log("Google login")}
+            onClick={() => socialLogin("google").catch((reason) => setMessage(reason instanceof Error ? reason.message : "Google login failed."))}
           >
             <span className={styles.googleIcon}>G</span>
             Continue with Google
           </button>
 
-          <button
-            type="button"
-            className={styles.facebookButton}
-            onClick={() => console.log("Facebook login")}
-          >
-            <FontAwesomeIcon icon={faFacebookF} />
-            Continue with Facebook
-          </button>
         </div>
 
         {/* Switch Login / Signup */}

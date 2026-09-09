@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --secondarycolor: #6a6a6a;
-  --primarycolor: #d1282d;
-  --bordercolor: #ddd;
-}
+  /* Editorial palette: warm off-white paper, near-black ink, one accent */
+  --background: #faf7f2;
+  --surface: #ffffff;
+  --foreground: #14110e;
+  --secondarycolor: #75695e;
+  --primarycolor: #a2452f;
+  --bordercolor: #e4dcd1;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --maxwidth: 1280px;
+  --gutter: clamp(1rem, 4vw, 3rem);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
 }
 
 * {
@@ -28,5 +29,77 @@ body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "PT Serif", serif;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+.button-spinner {
+  animation: button-spin 0.8s linear infinite;
+}
+
+@keyframes button-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-spinner { animation: none; }
+}
+
+:root {
+  --toastify-font-family: var(--font-sans);
+  --toastify-color-success: var(--foreground);
+  --toastify-color-error: var(--primarycolor);
+  --toastify-color-progress-success: var(--foreground);
+  --toastify-color-progress-error: var(--primarycolor);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primarycolor);
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   SHARED LAYOUT HELPERS
+========================================================= */
+
+.container {
+  width: 100%;
+  max-width: var(--maxwidth);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--secondarycolor);
+}
+
+/* Consistent product grid for home and catalog pages */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 2vw, 1.75rem);
 }
