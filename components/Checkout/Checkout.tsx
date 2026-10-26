@@ -1,20 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { submitEsewaPayment, type EsewaPayment } from "@/lib/esewa";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { toast } from "react-toastify";
 import PageLoader from "@/components/PageLoader";
 import AddressModal, { type Address, type ShippingLocation } from "@/components/Account/AddressModal";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import { storefrontRequest, StorefrontError } from "@/lib/api/client";
+import { storefrontFieldError, storefrontRequest, StorefrontError } from "@/lib/api/client";
 import { maskPhone } from "@/lib/format";
 import styles from "./Checkout.module.css";
 
 type PaymentMethod = { id: string; payment_mode_name: string; payment_type: string };
-type OrderResult = { data: { id: string; order_number: string; guest_access_token?: string } };
+type OrderResult = { data: { id: string; order_number: string; guest_access_token?: string; payment?: EsewaPayment } };
 type AddressTarget = "shipping" | "billing";
-type BuyNowItem = { productId: string; variantId?: string; quantity: number; title: string; image?: string; unitPrice: number; lineTotal: number };
+type BuyNowItem = { productId: string; variantId?: string; quantity: number; title: string; image?: string; unitPrice: number; subtotal?: number; discountAmount?: number; taxAmount?: number; lineTotal: number };
 
 function readBuyNow(): BuyNowItem | null {
   if (typeof window === "undefined") return null;
@@ -41,8 +43,8 @@ export default function Checkout() {
   const [picker, setPicker] = useState<AddressTarget | null>(null);
   const [addingAddress, setAddingAddress] = useState(false);
   const [pending, setPending] = useState(false);
-  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const fieldError = (name: string) => storefrontFieldError(errors, name);
 
   const loadAddresses = useCallback(async () => {
     const payload = await storefrontRequest<{ data: Address[] }>("customer/address");
@@ -57,14 +59,13 @@ export default function Checkout() {
     ]);
     setPayments(paymentPayload.data); setLocations(locationPayload.data);
     setPaymentId((current) => current || paymentPayload.data[0]?.id || "");
-    setLocationId((current) => current || locationPayload.data[0]?.id || "");
     if (customer) await loadAddresses();
   }, [customer, loadAddresses]);
   useEffect(() => {
     // Checkout choices come from tenant configuration.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadOptions()
-      .catch((reason) => setMessage(reason instanceof Error ? reason.message : "Unable to load checkout."))
+      .catch((reason) => toast.error(reason instanceof Error ? reason.message : "Unable to load checkout."))
       .finally(() => setOptionsLoading(false));
   }, [loadOptions]);
 
@@ -81,44 +82,45 @@ export default function Checkout() {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (pending) return;
-    setPending(true); setMessage(""); setErrors({});
+    const form = customer ? null : new FormData(event.currentTarget);
+    setPending(true); setErrors({});
     try {
+      let cartId: string | undefined;
       if (!buyNow) {
         const latest = await refreshCart();
+        cartId = latest.cartId;
         if (!latest.cart.length) throw new Error("Your cart is empty.");
         const unavailable = latest.cart.find((item) => !item.inStock);
         if (unavailable) throw new Error(`${unavailable.title} is no longer available in the requested quantity.`);
       }
-      const form = new FormData(event.currentTarget);
       let path = "order";
       let tokenKind: "cart" | undefined;
       let body: Record<string, unknown> = { payment_method_id: paymentId };
       if (customer) {
-        body = { ...body, billing_address_id: sameAsShipping ? shippingId : billingId, shipping_address_id: shippingId };
+        body = { ...body, cart_id: cartId, billing_address_id: sameAsShipping ? shippingId : billingId, shipping_address_id: shippingId };
       } else {
         const location = locations.find((item) => item.id === locationId);
         if (!location) throw new Error("Choose a shipping location.");
-        const address = { addresses: [{ province_id: location.province.id, district_id: location.district?.id || null, area_code: location.area_code, address: form.get("address"), landmark: form.get("landmark") }] };
-        body = { ...body, name: form.get("name"), email: form.get("email"), phone: form.get("phone"), billing_address: address, shipping_address: address };
+        const address = { addresses: [{ province_id: location.province.id, district_id: location.district?.id || null, area_code: location.area_code, address: form?.get("address"), landmark: form?.get("landmark") }] };
+        body = { ...body, name: form?.get("name"), email: form?.get("email"), phone: form?.get("phone"), billing_address: address, shipping_address: address };
         path = "guest/order";
-        tokenKind = "cart";
+        tokenKind = buyNow ? undefined : "cart";
       }
       // Buy Now bypasses the cart entirely — order this single item instead of whatever's in the cart.
-      if (buyNow) body = { ...body, items: [{ product_id: buyNow.productId, product_variant_id: buyNow.variantId, quantity: buyNow.quantity }] };
+      if (buyNow) body = { ...body, items: [{ product_id: buyNow.productId, variant_id: buyNow.variantId, quantity: buyNow.quantity }] };
       const result = await storefrontRequest<OrderResult>(path, { method: "POST", body: JSON.stringify(body) }, tokenKind);
       if (customer) {
         await refreshCart();
-        router.push(`/order/${result.data.id}`);
+        if (!submitEsewaPayment(result.data.payment)) router.push(`/order/${result.data.id}`);
       }
       else {
-        sessionStorage.setItem(`holier-guest-order-${result.data.order_number}`, result.data.guest_access_token || "");
         localStorage.removeItem("holier-cart-token");
         await refreshCart();
-        router.push(`/order/guest/${result.data.order_number}`);
+        if (!submitEsewaPayment(result.data.payment)) router.push(`/order/guest/${result.data.order_number}?guest_access_token=${encodeURIComponent(result.data.guest_access_token || "")}`);
       }
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : "Order submission failed.");
       if (reason instanceof StorefrontError) setErrors(reason.errors);
+      toast.error(reason instanceof Error ? reason.message : "Order submission failed.");
       setPending(false);
     }
   };
@@ -136,15 +138,15 @@ export default function Checkout() {
   const billingAddress = addresses.find((item) => item.id === billingId);
   const pickerTarget = picker;
 
-  // Buy Now shows a single synthetic line instead of the shared cart — no separate tax/discount breakdown available for it.
+  // Buy Now uses the backend product price pair captured when the customer chose the item.
   const orderItems = buyNow ? [{ id: "buy-now", title: buyNow.title, quantity: buyNow.quantity, lineTotal: buyNow.lineTotal }] : cart;
-  const orderSubtotal = buyNow ? buyNow.unitPrice * buyNow.quantity : summary.subtotal;
-  const orderDiscount = buyNow ? 0 : summary.discountAmount;
-  const orderTax = buyNow ? 0 : summary.taxAmount;
+  const orderSubtotal = buyNow ? buyNow.subtotal ?? buyNow.lineTotal : summary.subtotal;
+  const orderDiscount = buyNow ? buyNow.discountAmount ?? 0 : summary.discountAmount;
+  const orderTax = buyNow ? buyNow.taxAmount ?? 0 : summary.taxAmount;
   const orderTotal = buyNow ? buyNow.lineTotal : summary.total;
 
   return <section className={styles.checkoutSection}><div className={styles.checkoutContainer}><div className={styles.pageHeading}><h1>Checkout</h1></div>
-    <form onSubmit={submit}><div className={styles.checkoutGrid}><div className={styles.billingSection}>
+    <form onSubmit={submit} noValidate><div className={styles.checkoutGrid}><div className={styles.billingSection}>
       {customer ? <div className={styles.sectionBlock}><div className={styles.sectionHeading}><h2>Delivery address</h2></div>
         {addresses.length === 0 ? <div className={styles.addressEmpty}>
           <p>No saved addresses yet.</p>
@@ -160,32 +162,29 @@ export default function Checkout() {
           </div>
         </>}
       </div> : <div className={styles.sectionBlock}><div className={styles.sectionHeading}><h2>Contact and delivery</h2></div><div className={styles.formGrid}>
-        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="name">Name</label><input id="name" name="name" required /></div>
-        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="email">Email</label><input id="email" name="email" type="email" required /></div>
-        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="phone">Phone</label><input id="phone" name="phone" inputMode="numeric" maxLength={10} pattern="[0-9]{10}" onChange={(event) => { event.target.value = maskPhone(event.target.value); }} required /></div>
-        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="location">Delivery location</label><select id="location" value={locationId} onChange={(event) => setLocationId(event.target.value)} required>{locations.map((item) => <option key={item.id} value={item.id}>{item.province.name} — {item.name}</option>)}</select></div>
-        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="address">Street address</label><textarea id="address" name="address" rows={4} required /></div>
-        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="landmark">Landmark</label><input id="landmark" name="landmark" /></div>
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="name">Name</label><input id="name" name="name" className={fieldError("name") ? styles.invalid : undefined} required />{fieldError("name") && <span className={styles.errorText}>{fieldError("name")}</span>}</div>
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="email">Email</label><input id="email" name="email" type="email" className={fieldError("email") ? styles.invalid : undefined} required />{fieldError("email") && <span className={styles.errorText}>{fieldError("email")}</span>}</div>
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="phone">Phone</label><input id="phone" name="phone" inputMode="numeric" maxLength={10} pattern="[0-9]{10}" onChange={(event) => { event.target.value = maskPhone(event.target.value); }} className={fieldError("phone") ? styles.invalid : undefined} required />{fieldError("phone") && <span className={styles.errorText}>{fieldError("phone")}</span>}</div>
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="location">Delivery location</label><select id="location" value={locationId} onChange={(event) => setLocationId(event.target.value)} required><option value="" disabled>Select a delivery location</option>{locations.map((item) => <option key={item.id} value={item.id}>{item.province.name} — {item.name}</option>)}</select></div>
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="address">Street address</label><textarea id="address" name="address" rows={4} className={fieldError("address") ? styles.invalid : undefined} required />{fieldError("address") && <span className={styles.errorText}>{fieldError("address")}</span>}</div>
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}><label htmlFor="landmark">Landmark</label><input id="landmark" name="landmark" className={fieldError("landmark") ? styles.invalid : undefined} />{fieldError("landmark") && <span className={styles.errorText}>{fieldError("landmark")}</span>}</div>
       </div></div>}
-    </div><div className={styles.orderSection}><div className={styles.orderBox}><div className={styles.orderHeading}><h2>Your Order</h2></div>
+    </div><div className={styles.orderSection}><div className={styles.orderBox}><div className={styles.orderHeading}><h2>Your order</h2></div>
       <div className={styles.orderProducts}>{orderItems.map((item) => <div key={item.id} className={styles.orderProduct}><div className={styles.productName}><span>{item.title}</span><span className={styles.quantity}>× {item.quantity}</span></div><span className={styles.productSubtotal}>Rs. {item.lineTotal.toLocaleString()}</span></div>)}</div>
-      <div className={styles.totalArea}><div className={styles.totalRow}><span>Subtotal</span><strong>Rs. {orderSubtotal.toLocaleString()}</strong></div>{orderDiscount > 0 && <div className={styles.totalRow}><span>Discount</span><strong>- Rs. {orderDiscount.toLocaleString()}</strong></div>}<div className={styles.totalRow}><span>Tax</span><strong>Rs. {orderTax.toLocaleString()}</strong></div><div className={styles.totalRow}><span>Shipment</span><strong>Rs. {shippingCharge.toLocaleString()}</strong></div><div className={styles.grandTotal}><span>Total</span><strong>Rs. {(orderTotal + shippingCharge).toLocaleString()}</strong></div></div>
-    </div><div className={styles.paymentBox}><div className={styles.orderHeading}><h2>Payment Method</h2></div>
+      <div className={styles.totalArea}><div className={styles.totalRow}><span>Subtotal (excl. VAT)</span><strong>Rs. {orderSubtotal.toLocaleString()}</strong></div>{orderDiscount > 0 && <div className={styles.totalRow}><span>Discount</span><strong>- Rs. {orderDiscount.toLocaleString()}</strong></div>}<div className={styles.totalRow}><span>VAT</span><strong>Rs. {orderTax.toLocaleString()}</strong></div><div className={styles.totalRow}><span>Shipment</span><strong>Rs. {shippingCharge.toLocaleString()}</strong></div><div className={styles.grandTotal}><span>Total</span><strong>Rs. {(orderTotal + shippingCharge).toLocaleString()}</strong></div></div>
+    </div><div className={styles.paymentBox}><div className={styles.orderHeading}><h2>Payment method</h2></div>
       <div className={styles.paymentGrid}>{payments.map((payment) => <button key={payment.id} type="button" className={`${styles.paymentOption} ${paymentId === payment.id ? styles.activePayment : ""}`} onClick={() => setPaymentId(payment.id)}>{payment.payment_mode_name}</button>)}</div>
-      {message && <p role="alert">{message}</p>}{Object.values(errors).flat().map((error) => <p role="alert" key={error}>{error}</p>)}
       <button type="submit" className={styles.placeOrderButton} disabled={pending || !paymentId || (customer ? !shippingId || (!sameAsShipping && !billingId) : !locationId)}>{pending ? "Placing order…" : "Place Order"}</button>
     </div></div></div></form>
-    {pickerTarget && <div className={styles.modalOverlay} onClick={(event) => { if (event.target === event.currentTarget) setPicker(null); }}>
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-label={`Choose ${pickerTarget} address`}>
-        <div className={styles.modalHeading}><h3>Choose {pickerTarget} address</h3><button type="button" className={styles.modalClose} aria-label="Close" onClick={() => setPicker(null)}>×</button></div>
-        <div className={styles.addressList}>{addresses.map((address) => <button type="button" key={address.id} className={styles.addressOption} onClick={() => selectAddress(address, pickerTarget)}>
-          <span className={styles.addressName}>{address.label || address.name}</span>
-          <span>{address.name} · {address.phone}</span>
-          <span>{address.full_address}</span>
-        </button>)}</div>
-        <button type="button" className={styles.secondaryButton} onClick={() => { setPicker(null); setAddingAddress(true); }}>Add new address</button>
-      </div>
-    </div>}
+    {pickerTarget && <dialog className={styles.modal} aria-labelledby="address-picker-title" ref={(el) => { if (el && !el.open) { el.showModal(); el.querySelector<HTMLElement>("[class*=addressOption]")?.focus(); } }} onClose={() => setPicker(null)} onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
+      <div className={styles.modalHeading}><h3 id="address-picker-title">Choose {pickerTarget} address</h3><button type="button" className={styles.modalClose} aria-label="Close" onClick={(event) => event.currentTarget.closest("dialog")?.close()}>×</button></div>
+      <div className={styles.addressList}>{addresses.map((address) => <button type="button" key={address.id} className={styles.addressOption} onClick={() => selectAddress(address, pickerTarget)}>
+        <span className={styles.addressName}>{address.label || address.name}</span>
+        <span>{address.name} · {address.phone}</span>
+        <span>{address.full_address}</span>
+      </button>)}</div>
+      <button type="button" className={styles.secondaryButton} onClick={() => { setPicker(null); setAddingAddress(true); }}>Add new address</button>
+    </dialog>}
     {addingAddress && <AddressModal editing="new" locations={locations} defaultName={customer?.name} defaultPhone={customer?.phone || ""} onClose={() => setAddingAddress(false)} onSaved={loadAddresses} />}
   </div></section>;
 }

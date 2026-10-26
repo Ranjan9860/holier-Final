@@ -158,6 +158,10 @@
   color: var(--secondarycolor);
 }
 
+.productInfo .itemDiscount {
+  color: var(--primarycolor);
+}
+
 /* =========================================================
    PRICE
 ========================================================= */

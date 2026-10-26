@@ -41,7 +41,7 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <EmptyCollection
-        title="Your Cart is Empty"
+        title="Your cart is empty"
         description="Looks like you haven't added anything to your cart yet."
         error={error}
       />
@@ -80,7 +80,7 @@ export default function CartPage() {
                 <th>Product</th>
                 <th>Price</th>
                 <th>Quantity</th>
-                <th>Subtotal</th>
+                <th>Item total (incl. VAT)</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -104,6 +104,7 @@ export default function CartPage() {
                           alt={item.title}
                           fill
                           sizes="100px"
+                          unoptimized
                         />
                       </div>
 
@@ -120,6 +121,10 @@ export default function CartPage() {
 
                         {typeof item.promotion === "object" && item.promotion !== null && "name" in item.promotion && (
                           <span>{String(item.promotion.name)}</span>
+                        )}
+
+                        {item.discountAmount > 0 && (
+                          <span className={styles.itemDiscount}>Discount: − Rs. {item.discountAmount.toLocaleString()}</span>
                         )}
 
                         {!item.inStock && <span>Currently unavailable</span>}
@@ -211,7 +216,7 @@ export default function CartPage() {
                 {/* SUBTOTAL */}
 
                 <tr>
-                  <td>Subtotal</td>
+                  <td>Subtotal (excl. VAT)</td>
 
                   <td>Rs. {summary.subtotal.toLocaleString()}</td>
                 </tr>
@@ -220,7 +225,7 @@ export default function CartPage() {
                   <tr><td>Discount</td><td>- Rs. {summary.discountAmount.toLocaleString()}</td></tr>
                 )}
 
-                <tr><td>Tax</td><td>Rs. {summary.taxAmount.toLocaleString()}</td></tr>
+                <tr><td>VAT</td><td>Rs. {summary.taxAmount.toLocaleString()}</td></tr>
 
                 <tr><td>Shipping</td><td>Calculated at checkout</td></tr>
 

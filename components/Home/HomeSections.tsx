@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 import ProductCard from "@/components/ProductCard/ProductCard";
+import FlashSaleTimer from "@/components/Catalog/FlashSaleTimer";
 import type { ApiCategory } from "@/types/api";
 import type { Product } from "@/types/product";
+import { categoryPath } from "@/lib/catalog";
 
 import styles from "./Home.module.css";
 
@@ -20,7 +22,7 @@ export function CategoryGrid({ categories, limit }: { categories: ApiCategory[];
       {shown.map((category) => (
         <Link
           key={category.id}
-          href={`/shop?category_id=${category.id}`}
+          href={categoryPath(category)}
           className={styles.categoryCard}
         >
           <div className={styles.categoryImage}>
@@ -31,6 +33,7 @@ export function CategoryGrid({ categories, limit }: { categories: ApiCategory[];
                 fill
                 sizes="(max-width: 768px) 50vw, 25vw"
                 className={styles.cover}
+                unoptimized
               />
             ) : (
               <span className={styles.categoryInitial}>{category.category_name.charAt(0)}</span>
@@ -60,7 +63,7 @@ export function Section({
   children,
 }: {
   title: string;
-  eyebrow?: string;
+  eyebrow?: React.ReactNode;
   link?: string;
   linkLabel?: string;
   children: React.ReactNode;
@@ -134,13 +137,13 @@ export function SaleSection({ products }: { products: Product[] }) {
   return (
     <Section
       title={sale?.name || "Sale"}
-      eyebrow={sale?.endsAt ? `Ends today at ${sale.endsAt}` : undefined}
+      eyebrow={<FlashSaleTimer endsAt={sale?.endsAt} />}
       link="/sale"
       linkLabel="All sale items"
     >
       <div className="product-grid">
         {products.slice(0, 8).map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={`${product.id}-${product.sale?.variantId || "base"}`} product={product} />
         ))}
       </div>
     </Section>

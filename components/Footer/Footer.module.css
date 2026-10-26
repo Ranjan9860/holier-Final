@@ -422,3 +422,14 @@
   width: 120px;
   height: auto;
 }
+
+@media (pointer: coarse) {
+  .footerColumn a {
+    display: inline-block;
+    padding-block: 0.5rem;
+  }
+
+  .footerColumn li {
+    margin-bottom: 0;
+  }
+}

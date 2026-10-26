@@ -34,7 +34,7 @@ export default function WishlistPage() {
   if (!items.length) {
     return (
       <EmptyCollection
-        title="Your Wishlist is Empty"
+        title="Your wishlist is empty"
         description="Looks like you haven't saved anything to your wishlist yet."
         error={error}
       />
@@ -64,7 +64,7 @@ export default function WishlistPage() {
                   <tr key={item.id}>
                     <td><div className={cartStyles.productCell}>
                       <Link href={`/product/${item.product_id}`} className={cartStyles.productImage}>
-                        <Image src={source} alt={name} fill sizes="100px" />
+                        <Image src={source} alt={name} fill sizes="100px" unoptimized />
                       </Link>
                       <div className={cartStyles.productInfo}><Link href={`/product/${item.product_id}`}><h3>{name}</h3></Link></div>
                     </div></td>

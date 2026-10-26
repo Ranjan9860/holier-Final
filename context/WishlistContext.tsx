@@ -52,12 +52,12 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const moveToCart = async (productId: string | number, variantId?: string | null) => {
     const item = items.find((candidate) => String(candidate.product_id) === String(productId) && (candidate.product_variant_id || null) === (variantId || null));
     const cartToken = localStorage.getItem("holier-cart-token");
-    if (!item || !cartToken) return setError("Cart is not ready yet. Please try again.");
+    if (!item) return setError("Wishlist item not found. Please refresh and try again.");
     setLoading(true);
     try {
       await storefrontRequest(`wishlist/items/${item.id}/move-to-cart`, {
         method: "POST",
-        headers: { "X-Cart-Token": cartToken },
+        headers: cartToken ? { "X-Cart-Token": cartToken } : undefined,
       }, "wishlist");
       await loadWishlist();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to move item to cart."); }

@@ -1,4 +1,6 @@
 export type ApiPrice = {
+  selling_price?: number;
+  effective_selling_price?: number;
   selling_price_with_tax?: number;
   marked_price_with_tax?: number;
   effective_selling_price_with_tax?: number;
@@ -8,10 +10,29 @@ export type ApiPrice = {
   max_marked_price_with_tax?: number;
 };
 
+export type ApiPromotion = {
+  type: "discount" | "flash_sale";
+  name?: string;
+  discount_amount_with_tax: number;
+  discount_price_with_tax: number;
+};
+
+export type ApiProductSeo = {
+  seo_title: string;
+  seo_desc?: string | null;
+  alt_text: string;
+  canonical_url?: string | null;
+  og_image?: string | null;
+  allow_search_engine: boolean;
+  allow_follow_links: boolean;
+};
+
 export type ApiProduct = {
   id: string;
   slug?: string;
   product_name: string;
+  product_code?: string;
+  product_sku?: string;
   product_category_id?: string;
   product_category_name?: string;
   product_brand_id?: string;
@@ -24,6 +45,8 @@ export type ApiProduct = {
   stock_status?: "in_stock" | "low_stock" | "out_of_stock";
   has_variants?: boolean;
   variants?: ApiVariant[];
+  promotion?: ApiPromotion | null;
+  seo?: ApiProductSeo;
 };
 
 export type ApiVariant = {
@@ -33,6 +56,7 @@ export type ApiVariant = {
   images?: unknown;
   price?: ApiPrice;
   stock_status?: "in_stock" | "low_stock" | "out_of_stock";
+  promotion?: ApiPromotion | null;
 };
 
 export type ApiReview = {
@@ -90,5 +114,7 @@ export type ApiFlashSaleItem = {
   variant?: ApiVariant | null;
   selling_price_with_tax: number;
   effective_selling_price_with_tax: number;
+  discount_amount_with_tax?: number;
+  promotion?: ApiPromotion | null;
   stock_status?: "in_stock" | "low_stock" | "out_of_stock";
 };

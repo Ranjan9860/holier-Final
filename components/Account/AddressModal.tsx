@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { toast } from "react-toastify";
-import { storefrontRequest, StorefrontError } from "@/lib/api/client";
+import { storefrontFieldError, storefrontRequest, StorefrontError } from "@/lib/api/client";
 import { maskPhone } from "@/lib/format";
 import styles from "./AccountDashboard.module.css";
 
@@ -21,7 +21,7 @@ export default function AddressModal({ editing, locations, defaultName, defaultP
 }) {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [pending, setPending] = useState(false);
-  const fieldError = (name: string) => errors[name]?.[0];
+  const fieldError = (name: string) => storefrontFieldError(errors, name);
   const current = editing === "new" ? undefined : editing;
   const part = current?.addresses?.[0];
   const locationId = locations.find((location) => location.province.id === part?.province_id && (location.district?.id || null) === (part?.district_id || null) && location.area_code === (part?.area_code || null))?.id;

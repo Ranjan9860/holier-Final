@@ -154,3 +154,15 @@
   color: var(--secondarycolor);
   cursor: not-allowed;
 }
+
+@media (max-width: 560px) {
+  .title { font-size: 15px; }
+  .priceRow { flex-wrap: wrap; gap: 0.1rem 0.5rem; }
+  .cartButton { padding-inline: 0.5rem; }
+  .wishlistButton { width: 40px; height: 40px; top: 0.35rem; right: 0.35rem; }
+  .badges { top: 0.5rem; left: 0.5rem; }
+}
+
+@media (max-width: 360px) {
+  .cartButton { padding-inline: 0.25rem; letter-spacing: 0.06em; white-space: nowrap; }
+}

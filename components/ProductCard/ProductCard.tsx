@@ -25,9 +25,12 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   const [cartPending, setCartPending] = useState(false);
   const [wishlistPending, setWishlistPending] = useState(false);
 
-  const href = `/product/${product.slug || product.id}`;
+  const href = `/product/${product.slug || product.id}${product.sale?.variantId ? `?variant=${encodeURIComponent(product.sale.variantId)}` : ""}`;
   const outOfStock = product.stockStatus === "out_of_stock";
   const unavailable = outOfStock || product.price <= 0;
+  const promotion = product.sale
+    ? { name: product.sale.name, percentOff: product.sale.percentOff || 0 }
+    : product.promotion;
   const saved = isInWishlist(product.id);
 
   // Variant products need a chosen variant before cart or wishlist identity exists.
@@ -49,17 +52,18 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         <Link href={href} className={styles.imageLink}>
           <Image
             src={product.image}
-            alt={product.title}
+            alt={product.seo?.altText || product.title}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className={styles.image}
             priority={priority}
+            unoptimized
           />
         </Link>
 
         {/* Badges are only rendered from real API state */}
         <div className={styles.badges}>
-          {product.sale && <span className={styles.saleBadge}>{product.sale.name}</span>}
+          {promotion && <span className={styles.saleBadge}>{promotion.name}{promotion.percentOff > 0 && ` · ${promotion.percentOff}% off`}</span>}
 
           {outOfStock && <span className={styles.badge}>Out of stock</span>}
 
@@ -103,7 +107,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
           {product.oldPrice && <del className={styles.oldPrice}>{formatPrice(product.oldPrice)}</del>}
         </div>
 
-        {product.hasVariants && product.variantCount ? (
+        {product.hasVariants && product.variantCount && !product.sale ? (
           <p className={styles.options}>{product.variantCount} options</p>
         ) : null}
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import Catalog from "@/components/Catalog/Catalog";
+import FlashSaleTimer from "@/components/Catalog/FlashSaleTimer";
 import { getSaleProducts } from "@/lib/api/products";
 
 export default async function SalePage() {
@@ -10,7 +11,7 @@ export default async function SalePage() {
   return (
     <Catalog
       title={saleName || "Sale"}
-      description={products.length > 0 ? "Flash sale prices, while the sale is running." : undefined}
+      description={products.length > 0 ? <>Flash sale prices, while the sale is running.<FlashSaleTimer endsAt={products[0]?.sale?.endsAt} /></> : undefined}
       products={products}
       basePath="/sale"
       controls={false}

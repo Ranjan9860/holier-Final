@@ -160,3 +160,22 @@
   .primaryAction,
   .secondaryAction { transition: none; }
 }
+
+.notFound {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  min-height: 60vh;
+  align-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.notFound h1 { margin: 0; font-size: clamp(1.75rem, 4vw, 2.5rem); }
+
+.notFound a {
+  margin-top: 12px;
+  padding: 14px 28px;
+  background: var(--primarycolor);
+  color: #fff;
+}

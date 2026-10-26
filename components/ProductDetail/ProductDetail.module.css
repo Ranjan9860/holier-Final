@@ -38,7 +38,12 @@
 
 .mainImage {
   position: relative;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 5;
+  /* Capped in viewport units (not just aspect-ratio) so a wide gallery column can't
+     blow the image past the fold on typical laptop heights (~700-900px): nav (~80px) +
+     page/breadcrumb padding (~150px) + thumbnail row (~110px) leaves roughly this much
+     for the image itself. object-fit: cover on the image absorbs the crop. */
+  max-height: 55dvh;
   background: var(--surface);
   overflow: hidden;
 }
@@ -47,9 +52,20 @@
   object-fit: cover;
 }
 
+.placeholder {
+  object-fit: contain;
+}
+
+.mainImagePlaceholder {
+  /* Matches the placeholder graphic's own panel fill so contain's letterbox bars
+     read as one continuous panel instead of dead white margin either side. */
+  background: #e4dcd1;
+}
+
 .thumbnails {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.75rem;
 }
 
@@ -110,10 +126,28 @@
   color: var(--secondarycolor);
 }
 
+.promotionBadge {
+  align-self: flex-start;
+  padding: 0.3rem 0.6rem;
+  background: var(--primarycolor);
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .description {
   margin: 0;
   max-width: 55ch;
   color: var(--secondarycolor);
+}
+
+.description p {
+  margin: 0 0 0.75em;
+}
+
+.description p:last-child {
+  margin-bottom: 0;
 }
 
 /* =========================================================
@@ -342,6 +376,16 @@
 .reviewForm textarea {
   min-height: 110px;
   resize: vertical;
+}
+
+.invalid {
+  border-color: var(--primarycolor) !important;
+}
+
+.errorText {
+  margin: -0.5rem 0 0;
+  font-size: 12px;
+  color: var(--primarycolor);
 }
 
 .reviewForm button {

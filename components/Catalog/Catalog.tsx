@@ -1,18 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 import ProductCard from "@/components/ProductCard/ProductCard";
 import type { ApiCategory, ApiMeta } from "@/types/api";
-import type { ProductQuery } from "@/lib/catalog";
+import { categoryPath, type ProductQuery } from "@/lib/catalog";
 import type { Product } from "@/types/product";
 
 import styles from "./Catalog.module.css";
 
 type CatalogProps = {
   title: string;
-  description?: string;
+  description?: ReactNode;
   products: Product[];
   meta?: ApiMeta;
   categories?: ApiCategory[];
@@ -41,16 +42,26 @@ export default function Catalog({
   controls = true,
   empty,
 }: CatalogProps) {
+  const router = useRouter();
   const total = meta?.total ?? products.length;
   const currentPage = meta?.current_page ?? 1;
   const lastPage = meta?.last_page ?? 1;
 
   const pageHref = (page: number) => {
     const params = new URLSearchParams(
-      Object.entries(query).flatMap(([key, value]) => (value && key !== "page" ? [[key, String(value)]] : [])),
+      Object.entries(query).flatMap(([key, value]) => (value && key !== "page" && key !== "category_id" ? [[key, String(value)]] : [])),
     );
     if (page > 1) params.set("page", String(page));
     return `${basePath}${params.size ? `?${params}` : ""}`;
+  };
+
+  const categoryHref = (id: string) => {
+    const category = categories.find((item) => item.id === id);
+    if (!category) return "/shop";
+    const params = new URLSearchParams(
+      Object.entries(query).flatMap(([key, value]) => (value && key !== "page" && key !== "category_id" ? [[key, String(value)]] : [])),
+    );
+    return `${categoryPath(category)}${params.size ? `?${params}` : ""}`;
   };
 
   const submit = (event: { currentTarget: { form: HTMLFormElement | null } }) =>
@@ -80,7 +91,11 @@ export default function Catalog({
             {categories.length > 0 && (
               <label>
                 <span className="eyebrow">Category</span>
-                <select name="category_id" defaultValue={query.category_id || ""} onChange={submit}>
+                <select
+                  aria-label="Category"
+                  defaultValue={query.category_id || ""}
+                  onChange={(event) => router.push(categoryHref(event.target.value))}
+                >
                   <option value="">All categories</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
@@ -133,7 +148,7 @@ export default function Catalog({
             {products.length > 0 ? (
               <div className="product-grid">
                 {products.map((product, index) => (
-                  <ProductCard key={product.id} product={product} priority={index < 4} />
+                  <ProductCard key={`${product.id}-${product.sale?.variantId || "base"}`} product={product} priority={index < 4} />
                 ))}
               </div>
             ) : (

@@ -105,6 +105,38 @@
   grid-column: 1 / -1;
 }
 
+.profileImage {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.profileImage > img,
+.profileImage > span {
+  flex: 0 0 96px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileImage > span {
+  display: grid;
+  place-items: center;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 2rem;
+}
+
+.profileImage label {
+  flex: 1;
+}
+
+.profileImage input[type="file"] {
+  height: auto;
+  padding: 0.7rem;
+}
+
 .formGroup {
   display: flex;
   flex-direction: column;
@@ -361,35 +393,61 @@
 }
 
 .orderRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(150px, 1.25fr) repeat(3, minmax(90px, 1fr)) auto;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding: 1.1rem 0;
+  gap: clamp(1rem, 2vw, 2rem);
+  min-height: 96px;
+  padding: 1.25rem 0;
   border-bottom: 1px solid var(--bordercolor);
+  transition: color 0.2s ease, padding 0.2s ease;
 }
 
-.orderRow a {
-  font-size: 14px;
-  color: var(--foreground);
-}
-
-.orderRow a:hover {
+.orderRow:hover {
+  padding-inline: 0.5rem;
   color: var(--primarycolor);
 }
 
-.orderMeta {
+.orderIdentity,
+.orderFact {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.orderIdentity > span,
+.orderFact > span,
+.orderCount {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--secondarycolor);
+}
+
+.orderIdentity strong {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.orderFact strong,
+.orderFact time {
   font-size: 13px;
+  font-weight: 500;
+  text-transform: capitalize;
 }
 
 .orderTotal {
-  font-weight: 500;
-  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.orderArrow {
+  font-size: 22px;
+  transition: transform 0.2s ease;
+}
+
+.orderRow:hover .orderArrow {
+  transform: translateX(4px);
 }
 
 .pagination {
@@ -399,6 +457,21 @@
   padding-top: 1rem;
   font-size: 13px;
   color: var(--secondarycolor);
+}
+
+@media (max-width: 800px) {
+  .orderRow {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .orderIdentity,
+  .orderTotal {
+    grid-column: 1 / -1;
+  }
+
+  .orderArrow {
+    display: none;
+  }
 }
 
 /* =========================================================
@@ -425,4 +498,25 @@
   margin: 0.35rem 0 0;
   font-size: 13px;
   color: var(--secondarycolor);
+}
+
+@media (max-width: 560px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .nav {
+    gap: 0.25rem 1.5rem;
+    padding: 0.75rem 0;
+    margin-bottom: 1.75rem;
+  }
+
+  .navButton {
+    min-height: 44px;
+  }
+
+  .profileImage {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

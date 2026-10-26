@@ -28,7 +28,6 @@
   font-size: 38px;
   font-weight: 500;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: #000;
 }
 
@@ -74,7 +73,6 @@
   margin: 0 0 8px;
   font-size: 22px;
   font-weight: 500;
-  text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #000;
 }
@@ -112,7 +110,7 @@
 }
 
 .formGroup label span {
-  color: #d1282d;
+  color: #b42318;
 }
 
 .formGroup input,
@@ -151,6 +149,16 @@
 .formGroup input::placeholder,
 .formGroup textarea::placeholder {
   color: #aaaaaa;
+}
+
+.invalid {
+  border-color: #b42318 !important;
+}
+
+.errorText {
+  margin-top: -4px;
+  font-size: 12px;
+  color: #b42318;
 }
 
 /* =========================================================
@@ -276,6 +284,10 @@
    ADDRESSES
 ========================================================= */
 
+.checkboxRow input {
+  accent-color: var(--primarycolor);
+}
+
 .checkboxRow {
   display: flex;
   align-items: center;
@@ -319,7 +331,6 @@
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #000;
 }
@@ -370,25 +381,20 @@
    ADDRESS / PICKER MODAL
 ========================================================= */
 
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgb(0 0 0 / 55%);
-}
-
 .modal {
-  width: 100%;
+  width: calc(100% - 48px);
   max-width: 560px;
-  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  color: inherit;
   overflow-y: auto;
   padding: 28px;
   background: #ffffff;
   border: 1px solid #dddddd;
+}
+
+.modal::backdrop {
+  background: rgb(0 0 0 / 55%);
 }
 
 .modalHeading {
@@ -403,7 +409,6 @@
   margin: 0;
   font-size: 16px;
   font-weight: 500;
-  text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #000;
 }
@@ -457,8 +462,8 @@
 }
 
 .activePayment {
-  border-color: #d1282d;
-  background: #d1282d;
+  border-color: var(--primarycolor);
+  background: var(--primarycolor);
   color: #ffffff;
 }
 
@@ -466,8 +471,8 @@
   width: 100%;
   height: 52px;
   margin-top: 5px;
-  border: 1px solid #d1282d;
-  background: #d1282d;
+  border: 1px solid var(--primarycolor);
+  background: var(--primarycolor);
   color: #ffffff;
   font-family: inherit;
   font-size: 13px;
@@ -481,8 +486,7 @@
 }
 
 .placeOrderButton:hover {
-  background: #b82025;
-  border-color: #b82025;
+  opacity: 0.88;
 }
 
 /* =========================================================
@@ -518,13 +522,11 @@
   justify-content: center;
   min-height: 48px;
   padding: 0 30px;
-  background: #d1282d;
+  background: var(--primarycolor);
   color: #ffffff;
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 /* =========================================================
@@ -613,4 +615,27 @@
   .modal {
     padding: 20px;
   }
+}
+
+.secondaryButton {
+  padding: 8px 16px;
+  border: 1px solid var(--primarycolor);
+  background: transparent;
+  color: var(--primarycolor);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background: var(--primarycolor);
+  color: #ffffff;
+}
+
+.secondaryButton:focus-visible,
+.modalClose:focus-visible,
+.addressOption:focus-visible {
+  outline: 2px solid var(--primarycolor);
+  outline-offset: 2px;
 }

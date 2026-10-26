@@ -1,20 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
 import { StorefrontError } from "@/lib/api/client";
 
 import styles from "./AuthForm.module.css";
 
-export default function AuthForm() {
+export default function AuthForm({ returnTo }: { returnTo: string }) {
   const [isLogin, setIsLogin] = useState(true);
   const [pending, setPending] = useState(false);
-  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const fieldError = (name: string) => errors[name]?.[0];
   const router = useRouter();
-  const { login, register, forgotPassword, socialLogin } = useAuth();
+  const { login, register, forgotPassword, socialLogin, refreshCustomer } = useAuth();
+
+  useEffect(() => {
+    const completeSocialLogin = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.data?.type !== "holier-social-auth-success") return;
+      refreshCustomer().then(() => {
+        window.dispatchEvent(new Event("holier-auth-changed"));
+        sessionStorage.removeItem("holier-auth-return-to");
+        router.replace(returnTo);
+      }).catch((reason) => toast.error(reason instanceof Error ? reason.message : "Google login failed."));
+    };
+    window.addEventListener("message", completeSocialLogin);
+    return () => window.removeEventListener("message", completeSocialLogin);
+  }, [refreshCustomer, returnTo, router]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -38,7 +52,6 @@ export default function AuthForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setMessage("");
     setErrors({});
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
@@ -49,18 +62,21 @@ export default function AuthForm() {
     try {
       if (isLogin) await login({ email: formData.email, password: formData.password });
       else await register({ name: `${formData.firstName} ${formData.lastName}`.trim(), email: formData.email, password: formData.password });
-      router.push("/account");
+      router.replace(returnTo);
     } catch (reason) {
-      setMessage(reason instanceof Error ? reason.message : "Authentication failed.");
       if (reason instanceof StorefrontError) setErrors(reason.errors);
+      toast.error(reason instanceof Error ? reason.message : "Authentication failed.");
     } finally { setPending(false); }
   };
 
   const handleForgotPassword = async () => {
     if (!formData.email) return setErrors({ email: ["Enter your email address first."] });
     setPending(true);
-    try { setMessage(await forgotPassword(formData.email)); }
-    catch (reason) { setMessage(reason instanceof Error ? reason.message : "Unable to send reset link."); }
+    try {
+      await forgotPassword(formData.email);
+      toast.success("If an account exists for this email, a password reset link has been sent.");
+    }
+    catch (reason) { toast.error(reason instanceof Error ? reason.message : "Unable to send reset link."); }
     finally { setPending(false); }
   };
 
@@ -94,7 +110,9 @@ export default function AuthForm() {
         </div>
 
         {/* Form */}
-        <form className={styles.authForm} onSubmit={handleSubmit}>
+        {/* noValidate: defer to the backend's validation messages (shown via `errors`
+            below) instead of the browser's native required/type=email popups. */}
+        <form className={styles.authForm} onSubmit={handleSubmit} noValidate>
           {/* Name fields - Signup only */}
           {!isLogin && (
             <div className={styles.nameRow}>
@@ -102,7 +120,7 @@ export default function AuthForm() {
                 <label htmlFor="firstName">First Name</label>
 
                 <input
-                  className={styles.textInput}
+                  className={`${styles.textInput} ${fieldError("firstName") ? styles.invalid : ""}`}
                   id="firstName"
                   name="firstName"
                   type="text"
@@ -111,13 +129,15 @@ export default function AuthForm() {
                   onChange={handleChange}
                   required
                 />
+
+                {fieldError("firstName") && <span className={styles.errorText}>{fieldError("firstName")}</span>}
               </div>
 
               <div className={styles.inputGroup}>
                 <label htmlFor="lastName">Last Name</label>
 
                 <input
-                  className={styles.textInput}
+                  className={`${styles.textInput} ${fieldError("lastName") ? styles.invalid : ""}`}
                   id="lastName"
                   name="lastName"
                   type="text"
@@ -126,6 +146,8 @@ export default function AuthForm() {
                   onChange={handleChange}
                   required
                 />
+
+                {fieldError("lastName") && <span className={styles.errorText}>{fieldError("lastName")}</span>}
               </div>
             </div>
           )}
@@ -134,7 +156,7 @@ export default function AuthForm() {
           <div className={styles.inputGroup}>
             <label htmlFor="email">Email Address</label>
 
-            <div className={styles.inputWrapper}>
+            <div className={`${styles.inputWrapper} ${fieldError("email") ? styles.invalid : ""}`}>
               <Mail size={18} />
 
               <input
@@ -147,6 +169,8 @@ export default function AuthForm() {
                 required
               />
             </div>
+
+            {fieldError("email") && <span className={styles.errorText}>{fieldError("email")}</span>}
           </div>
 
           {/* Password */}
@@ -165,7 +189,7 @@ export default function AuthForm() {
               )}
             </div>
 
-            <div className={styles.inputWrapper}>
+            <div className={`${styles.inputWrapper} ${fieldError("password") ? styles.invalid : ""}`}>
               <input
                 id="password"
                 name="password"
@@ -185,6 +209,8 @@ export default function AuthForm() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+
+            {fieldError("password") && <span className={styles.errorText}>{fieldError("password")}</span>}
           </div>
 
           {/* Confirm Password - Signup only */}
@@ -192,7 +218,7 @@ export default function AuthForm() {
             <div className={styles.inputGroup}>
               <label htmlFor="confirmPassword">Confirm Password</label>
 
-              <div className={styles.inputWrapper}>
+              <div className={`${styles.inputWrapper} ${fieldError("confirmPassword") ? styles.invalid : ""}`}>
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -218,12 +244,12 @@ export default function AuthForm() {
                   )}
                 </button>
               </div>
+
+              {fieldError("confirmPassword") && <span className={styles.errorText}>{fieldError("confirmPassword")}</span>}
             </div>
           )}
 
           {/* Submit */}
-          {message && <p role="status">{message}</p>}
-          {Object.values(errors).flat().map((error) => <p role="alert" key={error}>{error}</p>)}
           <button type="submit" className={styles.submitButton} disabled={pending}>
             {pending ? "Please wait…" : isLogin ? "Login" : "Create Account"}
           </button>
@@ -241,7 +267,7 @@ export default function AuthForm() {
           <button
             type="button"
             className={styles.googleButton}
-            onClick={() => socialLogin("google").catch((reason) => setMessage(reason instanceof Error ? reason.message : "Google login failed."))}
+            onClick={() => { sessionStorage.setItem("holier-auth-return-to", returnTo); socialLogin("google").catch((reason) => toast.error(reason instanceof Error ? reason.message : "Google login failed.")); }}
           >
             <span className={styles.googleIcon}>G</span>
             Continue with Google

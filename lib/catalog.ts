@@ -1,4 +1,13 @@
 import type { Product } from "@/types/product";
+import type { ApiCategory } from "@/types/api";
+
+export function categorySlug(category: ApiCategory): string {
+  return category.category_slug || category.category_name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+export function categoryPath(category: ApiCategory): string {
+  return `/shop/category/${encodeURIComponent(categorySlug(category))}`;
+}
 
 export type ProductQuery = {
   q?: string;

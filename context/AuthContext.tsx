@@ -10,7 +10,7 @@ type AuthContextType = {
   login: (credentials: Credentials) => Promise<void>;
   register: (details: Credentials & { name: string }) => Promise<void>;
   logout: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<string>;
+  forgotPassword: (email: string) => Promise<void>;
   resetPassword: (details: { token: string; email: string; password: string; password_confirmation: string }) => Promise<string>;
   socialLogin: (provider: "google") => Promise<void>;
   exchangeSocialCode: (code: string) => Promise<void>;
@@ -58,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const acceptAuth = async (payload: { customer?: Customer | { data: Customer }; data?: Customer }) => {
     setCustomer(customerFrom(payload));
     localStorage.setItem(AUTH_MARKER, "1");
+    const authenticated = await storefrontRequest<{ data: Customer }>("customer/profile");
+    setCustomer(customerFrom(authenticated));
     await mergeGuestState();
   };
   const login = async (credentials: Credentials) => acceptAuth(await storefrontRequest("customer/login", { method: "POST", body: JSON.stringify(credentials) }));
@@ -67,11 +69,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(AUTH_MARKER);
     setCustomer(null); window.dispatchEvent(new Event("holier-auth-changed"));
   };
-  const forgotPassword = async (email: string) => (await storefrontRequest<{ message: string }>("customer/forgot-password", { method: "POST", body: JSON.stringify({ email }) })).message;
+  const forgotPassword = async (email: string) => { await storefrontRequest("customer/forgot-password", { method: "POST", body: JSON.stringify({ email }) }); };
   const resetPassword: AuthContextType["resetPassword"] = async (details) => (await storefrontRequest<{ message: string }>("customer/reset-password", { method: "POST", body: JSON.stringify(details) })).message;
   const socialLogin = async (provider: "google") => {
-    const { redirect_url } = await storefrontRequest<{ redirect_url: string }>(`customer/auth/redirect/${provider}`);
-    window.location.assign(redirect_url);
+    const width = 520;
+    const height = 650;
+    const popup = window.open("", "holier-google-auth", `popup=yes,width=${width},height=${height},left=${Math.max(0, window.screenX + (window.outerWidth - width) / 2)},top=${Math.max(0, window.screenY + (window.outerHeight - height) / 2)}`);
+    if (!popup) throw new Error("Allow pop-ups to continue with Google.");
+    try {
+      const { redirect_url } = await storefrontRequest<{ redirect_url: string }>(`customer/auth/redirect/${provider}`);
+      popup.location.assign(redirect_url);
+      popup.focus();
+    } catch (error) {
+      popup.close();
+      throw error;
+    }
   };
   const exchangeSocialCode = async (code: string) => acceptAuth(await storefrontRequest("customer/auth/exchange", { method: "POST", body: JSON.stringify({ code }) }));
 

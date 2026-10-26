@@ -179,9 +179,39 @@
   gap: 1.25rem;
 }
 
+.headerActions > *,
+.iconSummary,
+.iconLink {
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+}
+
 .iconLink {
   position: relative;
   display: inline-flex;
+}
+
+.accountAvatar,
+.accountInitial {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.accountAvatar {
+  object-fit: cover;
+}
+
+.accountInitial {
+  display: grid;
+  place-items: center;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .badge {
@@ -293,5 +323,64 @@
 
   .searchPanel {
     min-width: min(320px, 80vw);
+  }
+}
+
+/* Touch devices: 44px hit areas without changing how the icons look */
+@media (max-width: 900px) {
+  .headerContainer {
+    gap: 0.5rem;
+    padding-block: 0.5rem;
+  }
+
+  .headerActions {
+    gap: 0;
+  }
+
+  .headerActions > *,
+  .iconSummary,
+  .iconLink,
+  .menuButton {
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+  }
+
+  .menuButton {
+    align-items: center;
+    margin-left: -0.6rem;
+  }
+
+  .headerActions > :last-child {
+    margin-right: -0.6rem;
+  }
+
+  .badge {
+    top: 4px;
+    right: 2px;
+  }
+
+  /* The panel is wider than the space left of its icon, so pin it to the screen instead */
+  .searchPanel,
+  .accountPanel {
+    position: fixed;
+    top: 4.25rem;
+    left: var(--gutter);
+    right: var(--gutter);
+    min-width: 0;
+  }
+
+  .sideMenuHeader button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-right: -0.75rem;
+  }
+
+  .sideMenuNav a,
+  .sideCategories a {
+    display: block;
+    padding-block: 0.4rem;
   }
 }

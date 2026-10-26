@@ -9,6 +9,11 @@ export class StorefrontError extends Error {
   }
 }
 
+export function storefrontFieldError(errors: Record<string, string[]>, field: string) {
+  const message = errors[field]?.[0] ?? Object.entries(errors).find(([key]) => key.endsWith(`.${field}`))?.[1][0];
+  return message?.replace(/^The (?:billing_address\.|shipping_address\.)?addresses\.0\./, "The ");
+}
+
 const tokenConfig = {
   cart: { storage: "holier-cart-token", header: "X-Cart-Token", meta: "cart_token" },
   wishlist: { storage: "holier-wishlist-token", header: "X-Wishlist-Token", meta: "wishlist_token" },
@@ -58,7 +63,7 @@ async function runStorefrontRequest<T>(
 ): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
-  if (init.body) headers.set("Content-Type", "application/json");
+  if (init.body && !(init.body instanceof FormData)) headers.set("Content-Type", "application/json");
   if (tokenKind) {
     const config = tokenConfig[tokenKind];
     const token = localStorage.getItem(config.storage);

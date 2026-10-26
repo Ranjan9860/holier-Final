@@ -179,6 +179,17 @@
   white-space: nowrap;
 }
 
+@media (pointer: coarse) {
+  .sectionLink {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    border-bottom: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
 .sectionLink:hover {
   color: var(--primarycolor);
   border-bottom-color: var(--primarycolor);

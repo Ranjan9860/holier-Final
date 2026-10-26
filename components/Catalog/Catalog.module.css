@@ -24,6 +24,14 @@
   color: var(--secondarycolor);
 }
 
+.description time {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
 .count {
   margin: 0;
   font-size: 12px;
@@ -132,7 +140,8 @@
   color: var(--secondarycolor);
 }
 
-.emptyAction {
+.emptyAction,
+.empty a {
   margin-top: 0.5rem;
   padding: 0.6rem 1.5rem;
   border: 1px solid var(--foreground);
@@ -166,5 +175,31 @@
   .controls {
     position: static;
     margin-bottom: 2.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 0.9rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .searchField {
+    grid-column: 1 / -1;
+  }
+
+  .controls input,
+  .controls select {
+    min-height: 44px;
+  }
+
+  .apply,
+  .reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
   }
 }

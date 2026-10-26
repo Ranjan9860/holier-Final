@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
+import { categoryPath } from "@/lib/catalog";
 import type { ApiCategory } from "@/types/api";
 
 import styles from "./Navbar.module.css";
@@ -20,6 +21,7 @@ type NavbarProps = {
 
 export default function Navbar({ categories, hasSale }: NavbarProps) {
   const pathname = usePathname();
+  const authHref = `/auth?returnTo=${encodeURIComponent(pathname)}`;
   const { cartCount, loading: cartLoading } = useCart();
   const { items: wishlistItems, loading: wishlistLoading } = useWishlist();
   const { customer, logout } = useAuth();
@@ -82,7 +84,7 @@ export default function Navbar({ categories, hasSale }: NavbarProps) {
 
               <div className={styles.categoryPanel}>
                 {categories.map((category) => (
-                  <Link key={category.id} href={`/shop?category_id=${category.id}`} onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>
+                  <Link key={category.id} href={categoryPath(category)} onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>
                     {category.category_name}
                   </Link>
                 ))}
@@ -123,7 +125,9 @@ export default function Navbar({ categories, hasSale }: NavbarProps) {
 
           <details className={styles.dropdown}>
             <summary aria-label="Account" className={styles.iconSummary}>
-              <UserRound size={20} strokeWidth={1.6} />
+              {!customer ? <UserRound size={20} strokeWidth={1.6} />
+                : customer.image ? <Image src={customer.image} alt="" width={28} height={28} unoptimized className={styles.accountAvatar} />
+                  : <span className={styles.accountInitial} aria-hidden="true">{customer.name.charAt(0).toUpperCase()}</span>}
             </summary>
 
             <div className={styles.accountPanel}>
@@ -138,7 +142,7 @@ export default function Navbar({ categories, hasSale }: NavbarProps) {
                   </button>
                 </>
               ) : (
-                <Link href="/auth" onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>Sign in</Link>
+                <Link href={authHref} onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>Sign in</Link>
               )}
             </div>
           </details>
@@ -207,7 +211,7 @@ export default function Navbar({ categories, hasSale }: NavbarProps) {
                 {categories.map((category) => (
                   <Link
                     key={category.id}
-                    href={`/shop?category_id=${category.id}`}
+                    href={categoryPath(category)}
                     onClick={() => setMenuOpen(false)}
                   >
                     {category.category_name}

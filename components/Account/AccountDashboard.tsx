@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { toast } from "react-toastify";
@@ -8,13 +9,14 @@ import { useAuth } from "@/context/AuthContext";
 import { storefrontRequest, StorefrontError } from "@/lib/api/client";
 import { maskPhone } from "@/lib/format";
 import AddressModal, { type Address, type ShippingLocation } from "./AddressModal";
+import PageLoader from "@/components/PageLoader";
 import styles from "./AccountDashboard.module.css";
 
 function maskPhoneInput(event: ChangeEvent<HTMLInputElement>) {
   event.target.value = maskPhone(event.target.value);
 }
 
-type Order = { id: string; order_number: string; order_status: string; delivery_status?: string; order_date: string; total_amount: number };
+type Order = { id: string; order_number: string; delivery_status?: string; order_date: string; total_amount: number };
 type Tab = "profile" | "addresses" | "orders" | "security";
 
 export default function AccountDashboard({ initialTab = "profile" }: { initialTab?: Tab }) {
@@ -51,10 +53,10 @@ export default function AccountDashboard({ initialTab = "profile" }: { initialTa
   }, [customer, loadAddresses, loadLocations, loadOrders]);
 
   useEffect(() => {
-    if (!loading && !customer) router.replace("/auth");
+    if (!loading && !customer) router.replace("/auth?returnTo=%2Faccount");
   }, [customer, loading, router]);
 
-  if (loading) return <main className={styles.dashboard}><div className="container"><p>Loading account…</p></div></main>;
+  if (loading) return <PageLoader />;
   if (!customer) return null;
 
   const fail = (reason: unknown, fallback: string) => {
@@ -62,11 +64,19 @@ export default function AccountDashboard({ initialTab = "profile" }: { initialTa
     toast.error(reason instanceof Error ? reason.message : fallback);
   };
   const submitProfile = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); setPending(true); setErrors({});
+    event.preventDefault(); setErrors({});
     const form = new FormData(event.currentTarget);
-    const profile = Object.fromEntries([...form].filter(([, value]) => value !== ""));
+    const profile = new FormData();
+    (["name", "email", "phone", "gender"] as const).forEach((field) => {
+      const value = String(form.get(field) ?? "");
+      if (value !== (customer[field] ?? "")) profile.append(field, value);
+    });
+    const image = form.get("image");
+    if (image instanceof File && image.size) profile.append("image", image);
+    if (![...profile].length) return toast.info("No profile changes to save.");
+    setPending(true);
     try {
-      await storefrontRequest("customer/profile", { method: "POST", body: JSON.stringify(profile) });
+      await storefrontRequest("customer/profile", { method: "POST", body: profile });
       await refreshCustomer(); toast.success("Profile updated.");
     } catch (reason) { fail(reason, "Profile update failed."); }
     finally { setPending(false); }
@@ -100,6 +110,12 @@ export default function AccountDashboard({ initialTab = "profile" }: { initialTa
       {notice && <p role="alert" className={styles.notice}>{notice}</p>}
 
       {tab === "profile" && <section className={styles.section}><h2>Profile</h2><form onSubmit={submitProfile} noValidate className={styles.formGrid}>
+        <div className={`${styles.profileImage} ${styles.fullWidth}`}>
+          {customer.image
+            ? <Image src={customer.image} alt={`${customer.name}'s profile`} width={96} height={96} unoptimized />
+            : <span aria-hidden="true">{customer.name.charAt(0).toUpperCase()}</span>}
+          <label className={styles.formGroup}>Profile picture<input name="image" type="file" accept="image/jpeg,image/png,image/gif,image/webp" className={fieldError("image") ? styles.invalid : undefined} />{fieldError("image") && <span className={styles.errorText}>{fieldError("image")}</span>}</label>
+        </div>
         <label className={styles.formGroup}>Name<input name="name" defaultValue={customer.name} className={fieldError("name") ? styles.invalid : undefined} />{fieldError("name") && <span className={styles.errorText}>{fieldError("name")}</span>}</label>
         <label className={styles.formGroup}>Email<input name="email" type="email" defaultValue={customer.email} className={fieldError("email") ? styles.invalid : undefined} />{fieldError("email") && <span className={styles.errorText}>{fieldError("email")}</span>}</label>
         <label className={styles.formGroup}>Phone<input name="phone" defaultValue={customer.phone || ""} inputMode="numeric" maxLength={10} onChange={maskPhoneInput} className={fieldError("phone") ? styles.invalid : undefined} />{fieldError("phone") && <span className={styles.errorText}>{fieldError("phone")}</span>}</label>
@@ -120,11 +136,14 @@ export default function AccountDashboard({ initialTab = "profile" }: { initialTa
         {editingAddress && <AddressModal editing={editingAddress} locations={locations} defaultName={customer.name} defaultPhone={customer.phone || ""} onClose={() => setEditingAddress(null)} onSaved={loadAddresses} />}
       </section>}
 
-      {tab === "orders" && <section className={styles.section}><h2>Orders</h2>
-        {orders.length === 0 ? <p className={styles.emptyState}>No orders yet.</p> : <div className={styles.orderList}>{orders.map((order) => <div key={order.id} className={styles.orderRow}>
-          <Link href={`/order/${order.id}`}>{order.order_number}</Link>
-          <div className={styles.orderMeta}><span>{order.order_status} · {order.delivery_status || "pending"}</span><time>{order.order_date}</time><span className={styles.orderTotal}>Rs. {Number(order.total_amount).toLocaleString()}</span></div>
-        </div>)}</div>}
+      {tab === "orders" && <section className={styles.section}><div className={styles.sectionHeading}><div><span className="eyebrow">Purchase history</span><h2>Orders</h2></div><span className={styles.orderCount}>{orders.length} shown</span></div>
+        {orders.length === 0 ? <p className={styles.emptyState}>You haven’t placed an order yet.</p> : <div className={styles.orderList}>{orders.map((order) => <Link href={`/order/${order.id}`} key={order.id} className={styles.orderRow}>
+          <div className={styles.orderIdentity}><span>Order</span><strong>{order.order_number}</strong></div>
+          <div className={styles.orderFact}><span>Placed</span><time dateTime={order.order_date}>{order.order_date}</time></div>
+          <div className={styles.orderFact}><span>Delivery</span><strong>{order.delivery_status || "pending"}</strong></div>
+          <div className={`${styles.orderFact} ${styles.orderTotal}`}><span>Total</span><strong>Rs. {Number(order.total_amount).toLocaleString()}</strong></div>
+          <span className={styles.orderArrow} aria-hidden="true">→</span>
+        </Link>)}</div>}
         {lastPage > 1 && <div className={styles.pagination}>
           <button type="button" className={styles.secondaryButton} disabled={page <= 1} onClick={() => loadOrders(page - 1)}>Previous</button>
           <span>Page {page} of {lastPage}</span>

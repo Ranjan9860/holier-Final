@@ -1,6 +1,8 @@
 import Catalog from "@/components/Catalog/Catalog";
 import { getCatalogFilters, getProducts, parseProductQuery } from "@/lib/api/products";
 
+export const metadata = { alternates: { canonical: "/shop" } };
+
 export default async function ShopPage({ searchParams }: PageProps<"/shop">) {
   const query = parseProductQuery(await searchParams);
   const [{ products, meta }, filters] = await Promise.all([

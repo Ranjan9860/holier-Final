@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Account from "@/components/Account/AccountDashboard";
+import PageLoader from "@/components/PageLoader";
 
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const requestedTab = (await searchParams).tab;
@@ -7,7 +8,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
     ? requestedTab as "profile" | "addresses" | "orders" | "security"
     : "profile";
   return (
-    <Suspense fallback={<div>Loading account...</div>}>
+    <Suspense fallback={<PageLoader />}>
       <Account initialTab={tab} />
     </Suspense>
   );

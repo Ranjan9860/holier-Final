@@ -82,7 +82,13 @@ export async function getSaleProducts(): Promise<Product[]> {
       [],
       item.flash_sale && {
         name: item.flash_sale.name,
-        endsAt: item.flash_sale.end_time?.slice(0, 5),
+        endsAt: item.flash_sale.sale_date && item.flash_sale.end_time
+          ? `${item.flash_sale.sale_date.slice(0, 10)}T${item.flash_sale.end_time}`
+          : undefined,
+        variantId: item.variant?.id,
+        percentOff: item.selling_price_with_tax > 0
+          ? Math.round((item.selling_price_with_tax - item.effective_selling_price_with_tax) / item.selling_price_with_tax * 100)
+          : 0,
       },
     ),
   );

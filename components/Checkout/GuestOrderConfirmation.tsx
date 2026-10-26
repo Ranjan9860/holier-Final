@@ -2,26 +2,25 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { OrderDetails, type Order } from "@/components/Account/OrderDetail";
+import styles from "@/components/Account/OrderDetail.module.css";
+import PageLoader from "@/components/PageLoader";
 import { storefrontRequest } from "@/lib/api/client";
 
-type Order = { order_number: string; order_status: string; delivery_status?: string; order_date: string; total_amount: number; shipping_address?: { name?: string; phone?: string; address?: string } };
-
-export default function GuestOrderConfirmation({ orderNumber }: { orderNumber: string }) {
+export default function GuestOrderConfirmation({ orderNumber, guestAccessToken }: { orderNumber: string; guestAccessToken: string }) {
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
-    const key = `holier-guest-order-${orderNumber}`;
-    const token = sessionStorage.getItem(key);
-    if (!token) {
+    if (!guestAccessToken) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setError("This confirmation link is no longer available in this browser session.");
+      setError("This order link is missing its guest access token.");
       return;
     }
-    storefrontRequest<{ data: Order }>(`guest/order/${encodeURIComponent(orderNumber)}?guest_access_token=${encodeURIComponent(token)}`)
-      .then((payload) => { setOrder(payload.data); sessionStorage.removeItem(key); })
+    storefrontRequest<{ data: Order }>(`guest/order/${encodeURIComponent(orderNumber)}?guest_access_token=${encodeURIComponent(guestAccessToken)}`)
+      .then((payload) => setOrder(payload.data))
       .catch((reason) => setError(reason instanceof Error ? reason.message : "Unable to load order confirmation."));
-  }, [orderNumber]);
-  if (error) return <main><p role="alert">{error}</p><Link href="/shop">Continue shopping</Link></main>;
-  if (!order) return <main><p>Loading confirmation…</p></main>;
-  return <main><h1>Thank you for your order</h1><p>Order {order.order_number} was placed successfully.</p><p>{order.order_status} · {order.delivery_status || "pending"}</p><time>{order.order_date}</time><h2>Delivery</h2><p>{order.shipping_address?.name}<br />{order.shipping_address?.phone}<br />{order.shipping_address?.address}</p><strong>Total: Rs. {Number(order.total_amount).toLocaleString()}</strong><p><Link href="/shop">Continue shopping</Link></p></main>;
+  }, [guestAccessToken, orderNumber]);
+  if (error) return <main className={styles.page}><div className="container"><div className={styles.errorState}><span className="eyebrow">Order unavailable</span><h1>We couldn’t load this order</h1><p role="alert">{error}</p><Link href="/shop">Continue shopping</Link></div></div></main>;
+  if (!order) return <PageLoader />;
+  return <OrderDetails order={order} backHref="/shop" backLabel="Continue shopping" cancellationPath={`guest/order/${encodeURIComponent(orderNumber)}`} guestAccessToken={guestAccessToken} onResolved={(result) => setOrder((current) => current ? { ...current, ...result } : current)} />;
 }

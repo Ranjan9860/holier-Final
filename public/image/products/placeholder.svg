@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 960" role="img" aria-labelledby="title description">
   <title id="title">Product image unavailable</title>
   <desc id="description">A neutral placeholder showing a shopping bag outline.</desc>
-  <rect width="800" height="960" fill="#f2f0eb"/>
-  <rect x="238" y="288" width="324" height="360" rx="22" fill="none" stroke="#aaa59c" stroke-width="18"/>
-  <path d="M322 340v-46c0-62 34-102 78-102s78 40 78 102v46" fill="none" stroke="#aaa59c" stroke-width="18" stroke-linecap="round"/>
-  <path d="M321 507h158" stroke="#c5c0b7" stroke-width="16" stroke-linecap="round"/>
-  <circle cx="400" cy="507" r="34" fill="#f2f0eb" stroke="#aaa59c" stroke-width="14"/>
-  <text x="400" y="732" fill="#77736c" font-family="Arial, Helvetica, sans-serif" font-size="30" letter-spacing="3" text-anchor="middle">IMAGE UNAVAILABLE</text>
+  <rect width="800" height="960" fill="#e4dcd1"/>
+  <rect x="238" y="288" width="324" height="360" rx="22" fill="none" stroke="#75695e" stroke-width="16"/>
+  <path d="M322 340v-46c0-62 34-102 78-102s78 40 78 102v46" fill="none" stroke="#75695e" stroke-width="16" stroke-linecap="round"/>
+  <path d="M321 507h158" stroke="#a6998b" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="400" cy="507" r="32" fill="#e4dcd1" stroke="#75695e" stroke-width="12"/>
+  <text x="400" y="732" fill="#75695e" font-family="Arial, Helvetica, sans-serif" font-size="26" text-anchor="middle">Image unavailable</text>
 </svg>
