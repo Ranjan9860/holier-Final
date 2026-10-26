@@ -41,6 +41,11 @@
   font-size: clamp(2.75rem, 6vw, 5.5rem);
 }
 
+.heroContent p {
+  max-width: 32rem;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+}
+
 .heroImage {
   display: block;
   object-fit: cover;

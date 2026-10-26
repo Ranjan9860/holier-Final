@@ -42,7 +42,8 @@ export default function HeroCarousel() {
       ))}
 
       <div className={styles.heroContent}>
-        <h1>Considered pieces for the colder months.</h1>
+        <h1>Get in touch with your inner goddess.</h1>
+        <p>Luxury lingerie and intimate apparel. Premium quality, delivered all over Nepal.</p>
 
         <div className={styles.heroActions}>
           <Link href="/new-arrivals" className={styles.buttonSolid}>Shop New Arrivals</Link>

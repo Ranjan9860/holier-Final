@@ -34,3 +34,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Demo mode
+
+Set `DEMO_MODE=true` in `.env.local` and restart. The storefront then runs with no backend, using the in-memory dummy data in `lib/demo/` (lingerie catalogue from the staging dump, flash sale, discounts, cart, wishlist, checkout, orders, returns, cancellation, reviews). Any email/password signs in. Each visitor's state (cart, orders, wishlist, ...) is kept in signed cookies, so every visitor gets a private demo that works on serverless hosts; clearing cookies resets it. Set `DEMO_SECRET` to your own value in deployed environments. Set it to `false` (or remove it) to use the real API.

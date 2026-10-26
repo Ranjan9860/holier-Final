@@ -1,14 +1,17 @@
+import { demoResponse, isDemoMode } from "@/lib/demo/backend";
+
 const baseUrl = process.env.BACKEND_API_URL?.replace(/\/$/, "");
 
 async function proxy(
   request: Request,
   context: { params: Promise<{ path: string[] }> },
 ) {
+  const { path } = await context.params;
+  if (isDemoMode()) return demoResponse(request, path);
   if (!baseUrl || !process.env.STOREFRONT_TOKEN) {
     return Response.json({ message: "Storefront API is not configured" }, { status: 503 });
   }
 
-  const { path } = await context.params;
   const incoming = new URL(request.url);
   const target = new URL(`${baseUrl}/${path.map(encodeURIComponent).join("/")}`);
   target.search = incoming.search;
